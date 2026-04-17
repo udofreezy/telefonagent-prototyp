@@ -161,6 +161,26 @@ export function getTemplate(type: BusinessType): BusinessTemplate {
   return businessTemplates[type];
 }
 
+const NATURAL_SPEECH_GUIDELINES = `
+
+Sprich menschlich und natürlich - nicht wie ein Roboter:
+- Verwende Füllwörter und kleine Pausen: "ähm", "also", "mhm", "moment mal", "gerne"
+- Nutze Kontraktionen: "gibt's", "hab ich", "isch guet", "hätt ich"
+- Variiere Satzlänge und Tempo - nicht jeder Satz gleich lang
+- Bestätige aktiv: "Ah, verstehe", "Ja, genau", "Alles klar"
+- Reagiere emotional angemessen: freue dich über gute News, bedauere bei Problemen
+- Sprich in ganzen Zahlen statt Ziffern: "halb drei" statt "14:30", "fünfzehnter März"
+- Wiederhole wichtige Details zur Bestätigung: "Also Dienstag um zehn Uhr, habe ich das richtig?"
+- Stelle Rückfragen natürlich: "Darf ich fragen, worum es geht?"
+- Denk laut mit: "Lassen Sie mich kurz schauen...", "Einen Moment bitte..."
+- Keine Listen-artige Aufzählungen vorlesen - fliessend formulieren
+
+WICHTIG für die Gesprächsnotiz (wird am Ende automatisch erstellt):
+- Frage IMMER höflich nach dem Namen des Anrufers, falls nicht genannt
+- Bestätige Telefonnummern durch Wiederholung
+- Fasse vereinbarte Termine am Ende des Gesprächs nochmal zusammen
+`;
+
 export function buildSystemPrompt(config: {
   businessName: string;
   businessType: BusinessType;
@@ -169,7 +189,7 @@ export function buildSystemPrompt(config: {
   additionalInstructions: string;
 }): string {
   const template = getTemplate(config.businessType);
-  return template.systemPromptTemplate
+  const baseContent = template.systemPromptTemplate
     .replace(/{name}/g, config.businessName)
     .replace(/{services}/g, config.services)
     .replace(/{openingHours}/g, config.openingHours)
@@ -179,6 +199,7 @@ export function buildSystemPrompt(config: {
         ? `\nZusätzliche Anweisungen:\n${config.additionalInstructions}`
         : ""
     );
+  return baseContent + NATURAL_SPEECH_GUIDELINES;
 }
 
 export function buildGreeting(

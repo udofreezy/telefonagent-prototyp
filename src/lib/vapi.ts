@@ -40,21 +40,103 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
           content: systemPrompt,
         },
       ],
-      temperature: 0.7,
+      temperature: 0.8,
       maxTokens: 300,
     },
     voice: {
       provider: "11labs" as const,
-      voiceId: config.voiceId || "EXAVITQu4vr4xnSDxMaL" as const,
-      stability: 0.6,
-      similarityBoost: 0.75,
-      speed: 1.0,
-      model: "eleven_turbo_v2" as const,
+      voiceId: config.voiceId || "XrExE9yKIg1WjnnlVkGX" as const, // Matilda - multilingual, DE
+      model: "eleven_turbo_v2_5" as const,
       language: "de",
+      stability: 0.35,
+      similarityBoost: 0.8,
+      style: 0.5,
+      useSpeakerBoost: true,
+      speed: 0.95,
+      optimizeStreamingLatency: 3,
+      enableSsmlParsing: true,
     },
     silenceTimeoutSeconds: 30,
     maxDurationSeconds: 600,
     endCallMessage: "Vielen Dank für Ihren Anruf. Auf Wiederhören!",
+    analysisPlan: {
+      summaryPlan: {
+        enabled: true,
+        timeoutSeconds: 30,
+        messages: [
+          {
+            role: "system" as const,
+            content: `Du bist ein professioneller Assistent, der Telefongespräche für das Unternehmen "${config.businessName}" (${config.businessType}) zusammenfasst.
+
+Erstelle eine strukturierte deutsche Gesprächsnotiz im folgenden Format:
+
+**Anrufer:** (Name, falls genannt, sonst "Unbekannt")
+**Telefonnummer:** (falls genannt)
+**Anliegen:** (Worum ging es im Gespräch? 1-2 Sätze)
+**Besprochene Punkte:**
+- (Stichpunkt 1)
+- (Stichpunkt 2)
+- (Stichpunkt 3)
+**Termin/Reservierung:** (Datum, Uhrzeit, Details - falls vereinbart, sonst "Kein Termin")
+**Rückruf gewünscht:** (Ja/Nein, mit Details)
+**Nächste Schritte:** (Was muss das Unternehmen jetzt tun?)
+**Sonstiges:** (Wichtige Zusatzinfos, Allergien, Sonderwünsche, etc.)
+
+Sei präzise, aber vollständig. Notiere alle konkreten Informationen, die der Anrufer genannt hat.`,
+          },
+          {
+            role: "user" as const,
+            content:
+              "Hier ist das Transkript des Gesprächs:\n\n{{transcript}}\n\nBitte erstelle die strukturierte Gesprächsnotiz.",
+          },
+        ],
+      },
+      structuredDataPlan: {
+        enabled: true,
+        timeoutSeconds: 30,
+        messages: [
+          {
+            role: "system" as const,
+            content:
+              "Extrahiere die strukturierten Daten aus dem Telefongespräch. Wenn ein Feld nicht genannt wurde, lasse es leer.",
+          },
+          {
+            role: "user" as const,
+            content: "Transkript:\n\n{{transcript}}",
+          },
+        ],
+        schema: {
+          type: "object" as const,
+          properties: {
+            callerName: { type: "string" as const, description: "Name des Anrufers" },
+            callerPhone: { type: "string" as const, description: "Telefonnummer des Anrufers" },
+            callerEmail: { type: "string" as const, description: "E-Mail-Adresse des Anrufers" },
+            reason: { type: "string" as const, description: "Grund des Anrufs" },
+            appointmentRequested: {
+              type: "boolean" as const,
+              description: "Wurde ein Termin angefragt?",
+            },
+            appointmentDate: {
+              type: "string" as const,
+              description: "Gewünschtes Datum/Uhrzeit",
+            },
+            callbackRequested: {
+              type: "boolean" as const,
+              description: "Wurde ein Rückruf gewünscht?",
+            },
+            urgency: {
+              type: "string" as const,
+              description: "Dringlichkeit: niedrig, mittel, hoch",
+            },
+            notes: { type: "string" as const, description: "Zusätzliche Notizen" },
+          },
+        },
+      },
+      successEvaluationPlan: {
+        enabled: true,
+        rubric: "PassFail" as const,
+      },
+    },
     serverUrl: process.env.NEXT_PUBLIC_BASE_URL
       ? `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook`
       : undefined,
@@ -62,7 +144,10 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
 
   if (config.vapiAssistantId) {
     // Update existing assistant
-    await client.assistants.update(config.vapiAssistantId, assistantConfig);
+    await client.assistants.update({
+      id: config.vapiAssistantId,
+      ...assistantConfig,
+    });
     return config.vapiAssistantId;
   } else {
     // Create new assistant
@@ -88,7 +173,7 @@ export async function assignPhoneNumber(
 
   // Get the phone number details to return the actual number
   const phoneNumber = await client.phoneNumbers.get({ id: phoneNumberId });
-  return (phoneNumber as Record<string, unknown>).number as string || phoneNumberId;
+  return (phoneNumber as unknown as Record<string, unknown>).number as string || phoneNumberId;
 }
 
 export async function listCalls(assistantId?: string) {
@@ -106,5 +191,5 @@ export async function getCall(callId: string) {
 
 export async function deleteAssistant(assistantId: string) {
   const client = getClient();
-  await client.assistants.delete(assistantId);
+  await client.assistants.delete({ id: assistantId });
 }

@@ -2,13 +2,6 @@
 
 import { BusinessType } from "@/types";
 import { businessTemplates } from "@/lib/templates";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import {
   Stethoscope,
@@ -35,26 +28,38 @@ interface Props {
 
 export function BusinessTypeSelector({ value, onChange }: Props) {
   return (
-    <div className="space-y-2">
-      <Label htmlFor="businessType">Branche</Label>
-      <Select value={value} onValueChange={(v) => onChange(v as BusinessType)}>
-        <SelectTrigger id="businessType" className="w-full">
-          <SelectValue placeholder="Branche auswählen..." />
-        </SelectTrigger>
-        <SelectContent>
-          {Object.values(businessTemplates).map((template) => {
-            const Icon = icons[template.id];
-            return (
-              <SelectItem key={template.id} value={template.id}>
-                <div className="flex items-center gap-2">
-                  <Icon className="h-4 w-4" />
-                  <span>{template.label}</span>
-                </div>
-              </SelectItem>
-            );
-          })}
-        </SelectContent>
-      </Select>
+    <div className="space-y-3">
+      <Label className="text-sm font-medium">Branche</Label>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {Object.values(businessTemplates).map((template) => {
+          const Icon = icons[template.id];
+          const isActive = value === template.id;
+          return (
+            <button
+              key={template.id}
+              onClick={() => onChange(template.id)}
+              className={`flex items-center gap-2.5 rounded-xl border p-3 text-left transition-all duration-200 ${
+                isActive
+                  ? "border-[#ff6b35] bg-[#ff6b35]/5 shadow-md shadow-[#ff6b35]/10"
+                  : "border-border/50 bg-background/30 hover:border-border hover:bg-background/50"
+              }`}
+            >
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                isActive
+                  ? "bg-[#ff6b35] text-white"
+                  : "bg-muted text-muted-foreground"
+              }`}>
+                <Icon className="h-4 w-4" />
+              </div>
+              <span className={`text-sm font-medium ${
+                isActive ? "text-foreground" : "text-muted-foreground"
+              }`}>
+                {template.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

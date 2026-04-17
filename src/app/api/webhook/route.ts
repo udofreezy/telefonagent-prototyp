@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { saveCallLog } from "@/lib/store";
+import { saveCallLog, saveCallStatus, getCallStatus, saveAppointment } from "@/lib/store";
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,19 +16,54 @@ export async function POST(request: NextRequest) {
       case "end-of-call-report": {
         const call = message.call;
         if (call) {
-          await saveCallLog({
+          const analysis = message.analysis || call.analysis || {};
+          const callLog = {
             id: call.id,
             assistantId: call.assistantId || "",
             phoneNumber: call.customer?.number,
             startedAt: call.startedAt || call.createdAt || "",
             endedAt: call.endedAt,
             duration: call.duration,
-            status: call.status || "ended",
-            summary: message.summary || call.summary,
+            status: "ended",
+            summary: analysis.summary || message.summary || call.summary,
             transcript: message.transcript || call.transcript,
             recordingUrl: call.recordingUrl,
             cost: call.cost,
+            structuredData: analysis.structuredData,
+            successEvaluation:
+              typeof analysis.successEvaluation === "string"
+                ? analysis.successEvaluation
+                : undefined,
+          };
+          await saveCallLog(callLog);
+
+          // Auto-create appointment if requested
+          if (analysis.structuredData?.appointmentRequested) {
+            const sd = analysis.structuredData;
+            await saveAppointment({
+              id: `apt-${call.id}-${Date.now()}`,
+              callId: call.id,
+              callerName: sd.callerName,
+              callerPhone: sd.callerPhone || call.customer?.number,
+              callerEmail: sd.callerEmail,
+              appointmentDate: sd.appointmentDate,
+              reason: sd.reason,
+              notes: sd.notes,
+              status: "pending",
+              createdAt: new Date().toISOString(),
+            });
+            console.log(`[Webhook] Auto-created appointment for call ${call.id}`);
+          }
+
+          // Update live status with the completed call
+          await saveCallStatus({
+            active: false,
+            callId: call.id,
+            phoneNumber: call.customer?.number,
+            startedAt: call.startedAt || call.createdAt,
+            latestCall: callLog,
           });
+
           console.log(`[Webhook] Saved end-of-call report for call ${call.id}`);
         }
         break;
@@ -37,7 +72,25 @@ export async function POST(request: NextRequest) {
       case "status-update": {
         const call = message.call;
         if (call) {
-          console.log(`[Webhook] Call ${call.id} status: ${message.status}`);
+          const status = message.status;
+          console.log(`[Webhook] Call ${call.id} status: ${status}`);
+
+          if (status === "in-progress") {
+            await saveCallStatus({
+              active: true,
+              callId: call.id,
+              phoneNumber: call.customer?.number,
+              startedAt: call.startedAt || call.createdAt || new Date().toISOString(),
+            });
+          } else if (status === "ended") {
+            // Mark as not active, but keep existing latestCall if available
+            const current = await getCallStatus();
+            await saveCallStatus({
+              ...current,
+              active: false,
+              callId: call.id,
+            });
+          }
         }
         break;
       }

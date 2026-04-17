@@ -31,6 +31,31 @@ export interface AgentConfig {
   updatedAt?: string;
 }
 
+export interface CallStructuredData {
+  callerName?: string;
+  callerPhone?: string;
+  callerEmail?: string;
+  reason?: string;
+  appointmentRequested?: boolean;
+  appointmentDate?: string;
+  callbackRequested?: boolean;
+  urgency?: "niedrig" | "mittel" | "hoch" | string;
+  notes?: string;
+}
+
+export interface Appointment {
+  id: string;
+  callId: string;
+  callerName?: string;
+  callerPhone?: string;
+  callerEmail?: string;
+  appointmentDate?: string;
+  reason?: string;
+  notes?: string;
+  status: "pending" | "confirmed" | "deleted";
+  createdAt: string;
+}
+
 export interface CallLog {
   id: string;
   assistantId: string;
@@ -43,6 +68,16 @@ export interface CallLog {
   transcript?: string;
   recordingUrl?: string;
   cost?: number;
+  structuredData?: CallStructuredData;
+  successEvaluation?: string;
+}
+
+export interface CallStatus {
+  active: boolean;
+  callId?: string;
+  phoneNumber?: string;
+  startedAt?: string;
+  latestCall?: CallLog;
 }
 
 export interface WebhookPayload {
