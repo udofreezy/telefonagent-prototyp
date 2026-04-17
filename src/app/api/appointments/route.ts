@@ -1,8 +1,62 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAppointments, saveAppointment, deleteAppointment } from "@/lib/store";
+import { getAppointments, saveAppointment, deleteAppointment, getAgentConfig, getCallLogs } from "@/lib/store";
+import { listCalls } from "@/lib/vapi";
+import { CallStructuredData } from "@/types";
+
+// Sync: check VAPI calls for appointmentRequested and create missing appointments
+async function syncAppointmentsFromCalls() {
+  try {
+    const config = await getAgentConfig();
+    if (!config?.vapiAssistantId) return;
+
+    const appointments = await getAppointments();
+    const existingCallIds = new Set(appointments.map((a) => a.callId));
+
+    // Get calls from VAPI + local storage
+    const storedLogs = await getCallLogs();
+    const storedById = new Map(storedLogs.map((l) => [l.id, l]));
+
+    const calls = (await listCalls(config.vapiAssistantId)) as unknown as Array<
+      Record<string, unknown>
+    >;
+
+    for (const call of Array.isArray(calls) ? calls : []) {
+      const id = call.id as string;
+      if (existingCallIds.has(id)) continue;
+
+      const analysis = (call.analysis as Record<string, unknown> | undefined) ?? {};
+      const stored = storedById.get(id);
+      const sd =
+        (analysis.structuredData as CallStructuredData | undefined) ||
+        stored?.structuredData;
+
+      if (!sd?.appointmentRequested) continue;
+
+      await saveAppointment({
+        id: `apt-${id}-${Date.now()}`,
+        callId: id,
+        callerName: sd.callerName,
+        callerPhone: sd.callerPhone || ((call.customer as Record<string, unknown>)?.number as string),
+        callerEmail: sd.callerEmail,
+        appointmentDate: sd.appointmentDate,
+        reason: sd.reason,
+        notes: sd.notes,
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      });
+
+      console.log(`[Appointments] Auto-synced appointment for call ${id}`);
+    }
+  } catch (error) {
+    console.error("[Appointments] Sync error:", error);
+  }
+}
 
 export async function GET() {
   try {
+    // Sync from VAPI calls first
+    await syncAppointmentsFromCalls();
+
     const appointments = await getAppointments();
     return NextResponse.json(appointments);
   } catch (error) {
