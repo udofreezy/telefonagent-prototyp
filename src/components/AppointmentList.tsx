@@ -18,6 +18,8 @@ import {
   XCircle,
   Ban,
   Loader2,
+  User,
+  MessageSquare,
 } from "lucide-react";
 
 function formatDate(dateStr?: string): string {
@@ -89,9 +91,9 @@ function AppointmentCard({
             : "border-emerald-500/20 bg-card card-hover"
       }`}
     >
-      <div className="p-4">
-        {/* Compact header row */}
-        <div className="flex items-center justify-between gap-4">
+      <div className="p-4 space-y-3">
+        {/* Header: Name + Status + Actions */}
+        <div className="flex items-start justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
             <div
               className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
@@ -104,37 +106,16 @@ function AppointmentCard({
             >
               <CalendarCheck className="h-4 w-4" />
             </div>
-            <div className="min-w-0 flex-1">
+            <div>
               <div className="flex items-center gap-2">
-                <p className={`font-semibold truncate ${isRejected ? "line-through text-muted-foreground" : ""}`}>
+                <p className={`font-semibold ${isRejected ? "line-through text-muted-foreground" : ""}`}>
                   {appointment.callerName || "Unbekannter Anrufer"}
                 </p>
                 {statusBadge(appointment.status)}
               </div>
-              <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                {appointment.callerPhone && (
-                  <span className="flex items-center gap-1">
-                    <Phone className="h-3 w-3" />
-                    <a href={`tel:${appointment.callerPhone}`} className="hover:text-[#ff6b35] transition-colors">
-                      {appointment.callerPhone}
-                    </a>
-                  </span>
-                )}
-                {appointment.reason && (
-                  <span className={`truncate max-w-[200px] ${isRejected ? "line-through" : ""}`}>
-                    {appointment.reason}
-                  </span>
-                )}
-                {appointment.appointmentDate && (
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {appointment.appointmentDate}
-                  </span>
-                )}
-                <span className="text-muted-foreground/60">
-                  {formatDate(appointment.createdAt)}
-                </span>
-              </div>
+              <p className="text-xs text-muted-foreground/60 mt-0.5">
+                Anruf vom {formatDate(appointment.createdAt)}
+              </p>
             </div>
           </div>
 
@@ -178,22 +159,66 @@ function AppointmentCard({
           </div>
         </div>
 
-        {/* Extra details row for email/notes (only if present and not rejected) */}
-        {!isRejected && (appointment.callerEmail || appointment.notes) && (
-          <div className="mt-2 ml-12 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-            {appointment.callerEmail && (
-              <span className="flex items-center gap-1">
-                <Mail className="h-3 w-3" />
-                <a href={`mailto:${appointment.callerEmail}`} className="hover:text-[#ff6b35] transition-colors">
-                  {appointment.callerEmail}
-                </a>
-              </span>
+        {/* Detail grid */}
+        {!isRejected && (
+          <div className="ml-12 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+            {/* Gewünschter Termin */}
+            <div className="flex items-start gap-2 rounded-lg bg-muted/50 px-3 py-2">
+              <Clock className="h-4 w-4 text-[#ff6b35] mt-0.5 shrink-0" />
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Gewünschter Termin</p>
+                <p className="font-medium">
+                  {appointment.appointmentDate || "Nicht angegeben"}
+                </p>
+              </div>
+            </div>
+
+            {/* Anliegen */}
+            <div className="flex items-start gap-2 rounded-lg bg-muted/50 px-3 py-2">
+              <MessageSquare className="h-4 w-4 text-[#ff6b35] mt-0.5 shrink-0" />
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Anliegen</p>
+                <p className="font-medium">
+                  {appointment.reason || "Nicht angegeben"}
+                </p>
+              </div>
+            </div>
+
+            {/* Telefon */}
+            {appointment.callerPhone && (
+              <div className="flex items-start gap-2 rounded-lg bg-muted/50 px-3 py-2">
+                <Phone className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">Telefon</p>
+                  <a href={`tel:${appointment.callerPhone}`} className="font-medium hover:text-[#ff6b35] transition-colors">
+                    {appointment.callerPhone}
+                  </a>
+                </div>
+              </div>
             )}
+
+            {/* E-Mail */}
+            {appointment.callerEmail && (
+              <div className="flex items-start gap-2 rounded-lg bg-muted/50 px-3 py-2">
+                <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">E-Mail</p>
+                  <a href={`mailto:${appointment.callerEmail}`} className="font-medium hover:text-[#ff6b35] transition-colors">
+                    {appointment.callerEmail}
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {/* Notizen / Hinweise */}
             {appointment.notes && (
-              <span className="flex items-center gap-1">
-                <FileText className="h-3 w-3" />
-                {appointment.notes}
-              </span>
+              <div className="flex items-start gap-2 rounded-lg bg-muted/50 px-3 py-2 sm:col-span-2">
+                <FileText className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">Hinweise</p>
+                  <p className="font-medium">{appointment.notes}</p>
+                </div>
+              </div>
             )}
           </div>
         )}
