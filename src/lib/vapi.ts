@@ -32,7 +32,7 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
       model: "nova-2" as const,
       smartFormat: true,
       numerals: true,
-      endpointing: 300,
+      endpointing: 200,
     },
     model: {
       provider: "anthropic" as const,
@@ -43,8 +43,8 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
           content: systemPrompt,
         },
       ],
-      temperature: 0.8,
-      maxTokens: 300,
+      temperature: 0.6,
+      maxTokens: 200,
     },
     voice: {
       provider: "11labs" as const,
@@ -55,15 +55,15 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
       similarityBoost: 0.8,
       style: 0.5,
       useSpeakerBoost: true,
-      speed: 0.95,
-      optimizeStreamingLatency: 3,
+      speed: 1.0,
+      optimizeStreamingLatency: 4,
       enableSsmlParsing: true,
       fillerInjectionEnabled: false,
     },
     backgroundSound: "off" as const,
     backchannelingEnabled: false,
     backgroundDenoisingEnabled: true,
-    silenceTimeoutSeconds: 30,
+    silenceTimeoutSeconds: 45,
     maxDurationSeconds: 600,
     endCallMessage: "Vielen Dank für Ihren Anruf. Auf Wiederhören!",
     analysisPlan: {
@@ -105,7 +105,7 @@ Sei präzise, aber vollständig. Notiere alle konkreten Informationen, die der A
           {
             role: "system" as const,
             content:
-              "Extrahiere die strukturierten Daten aus dem Telefongespräch. Wenn ein Feld nicht genannt wurde, lasse es leer.",
+              "Extrahiere die strukturierten Daten aus dem Telefongespräch. Notiere das Anliegen/den Grund des Anrufs so präzise wie möglich (z.B. 'Kontrolle', 'Zahnreinigung', 'Beratung Trauringe', nicht einfach nur 'Termin'). Wenn ein Feld nicht genannt wurde, lasse es leer. Die Telefonnummer kommt automatisch vom System – extrahiere sie nur wenn sie explizit im Gespräch genannt wird.",
           },
           {
             role: "user" as const,
