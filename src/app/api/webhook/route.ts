@@ -40,11 +40,14 @@ export async function POST(request: NextRequest) {
           // Auto-create appointment entry from every call
           {
             const sd = analysis.structuredData || {};
+            const customerPhone = call.customer?.number;
+            console.log(`[Webhook] structuredData for ${call.id}:`, JSON.stringify(sd));
+            console.log(`[Webhook] customer phone: ${customerPhone}`);
             await saveAppointment({
               id: `apt-${call.id}-${Date.now()}`,
               callId: call.id,
               callerName: sd.callerName,
-              callerPhone: sd.callerPhone || call.customer?.number,
+              callerPhone: sd.callerPhone || customerPhone,
               callerEmail: sd.callerEmail,
               appointmentDate: sd.appointmentDate,
               reason: sd.reason,
@@ -52,7 +55,7 @@ export async function POST(request: NextRequest) {
               status: "pending",
               createdAt: new Date().toISOString(),
             });
-            console.log(`[Webhook] Auto-created appointment for call ${call.id}`);
+            console.log(`[Webhook] Auto-created appointment for call ${call.id} (name: ${sd.callerName || 'n/a'}, reason: ${sd.reason || 'n/a'})`);
           }
 
           // Update live status with the completed call

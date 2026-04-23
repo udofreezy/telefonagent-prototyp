@@ -3,14 +3,14 @@ import { getAppointments, saveAppointment, deleteAppointment, getAgentConfig, ge
 import { listCalls } from "@/lib/vapi";
 import { CallStructuredData } from "@/types";
 
-// Sync: check VAPI calls for appointmentRequested and create missing appointments
+// Sync: check VAPI calls and create/update appointments with latest data
 async function syncAppointmentsFromCalls() {
   try {
     const config = await getAgentConfig();
     if (!config?.vapiAssistantId) return;
 
     const appointments = await getAppointments();
-    const existingCallIds = new Set(appointments.map((a) => a.callId));
+    const existingByCallId = new Map(appointments.map((a) => [a.callId, a]));
 
     // Get calls from VAPI + local storage
     const storedLogs = await getCallLogs();
@@ -22,8 +22,6 @@ async function syncAppointmentsFromCalls() {
 
     for (const call of Array.isArray(calls) ? calls : []) {
       const id = call.id as string;
-      if (existingCallIds.has(id)) continue;
-
       const analysis = (call.analysis as Record<string, unknown> | undefined) ?? {};
       const stored = storedById.get(id);
       const sd =
@@ -31,20 +29,48 @@ async function syncAppointmentsFromCalls() {
         stored?.structuredData ||
         {};
 
-      await saveAppointment({
-        id: `apt-${id}-${Date.now()}`,
-        callId: id,
-        callerName: sd.callerName,
-        callerPhone: sd.callerPhone || ((call.customer as Record<string, unknown>)?.number as string),
-        callerEmail: sd.callerEmail,
-        appointmentDate: sd.appointmentDate,
-        reason: sd.reason,
-        notes: sd.notes,
-        status: "pending",
-        createdAt: new Date().toISOString(),
-      });
+      const callerPhone = sd.callerPhone || ((call.customer as Record<string, unknown>)?.number as string);
 
-      console.log(`[Appointments] Auto-synced appointment for call ${id}`);
+      const existing = existingByCallId.get(id);
+
+      if (existing) {
+        // Update existing appointment if VAPI now has better data
+        const needsUpdate =
+          (!existing.callerName && sd.callerName) ||
+          (!existing.callerPhone && callerPhone) ||
+          (!existing.reason && sd.reason) ||
+          (!existing.appointmentDate && sd.appointmentDate) ||
+          (!existing.notes && sd.notes) ||
+          (!existing.callerEmail && sd.callerEmail);
+
+        if (needsUpdate) {
+          await saveAppointment({
+            ...existing,
+            callerName: existing.callerName || sd.callerName,
+            callerPhone: existing.callerPhone || callerPhone,
+            callerEmail: existing.callerEmail || sd.callerEmail,
+            appointmentDate: existing.appointmentDate || sd.appointmentDate,
+            reason: existing.reason || sd.reason,
+            notes: existing.notes || sd.notes,
+          });
+          console.log(`[Appointments] Updated appointment with VAPI data for call ${id}`);
+        }
+      } else {
+        // Create new appointment
+        await saveAppointment({
+          id: `apt-${id}-${Date.now()}`,
+          callId: id,
+          callerName: sd.callerName,
+          callerPhone: callerPhone,
+          callerEmail: sd.callerEmail,
+          appointmentDate: sd.appointmentDate,
+          reason: sd.reason,
+          notes: sd.notes,
+          status: "pending",
+          createdAt: new Date().toISOString(),
+        });
+        console.log(`[Appointments] Auto-synced appointment for call ${id}`);
+      }
     }
   } catch (error) {
     console.error("[Appointments] Sync error:", error);
