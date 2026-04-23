@@ -366,6 +366,7 @@ export function CallHistory() {
           reason: sd.reason,
           appointmentDate: sd.appointmentDate,
           notes: sd.notes,
+          summary: call.summary,
         }),
       });
       if (!res.ok) {
