@@ -1,54 +1,60 @@
 import { DAVClient } from "tsdav";
-import { Appointment } from "@/types";
 
-function generateICS(appointment: Appointment): string {
-  const uid = `${appointment.id}@clickfabrik.ch`;
-  const summary = `Termin: ${appointment.callerName || "Kunde"} – ${appointment.reason || "Termin"}`;
+export interface CalendarEventData {
+  id: string;
+  callerName?: string;
+  callerPhone?: string;
+  callerEmail?: string;
+  reason?: string;
+  appointmentDate?: string;
+  notes?: string;
+}
+
+function parseDate(dateStr: string): Date | null {
+  // Try DD.MM.YYYY HH:mm format first
+  const match = dateStr.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})\s+(\d{1,2}):(\d{2})$/);
+  if (match) {
+    const [, day, month, year, hour, minute] = match;
+    return new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute));
+  }
+  // Fallback: try native Date parsing
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function generateICS(data: CalendarEventData): string {
+  const uid = `${data.id}@clickfabrik.ch`;
+  const summary = `Termin: ${data.callerName || "Kunde"} – ${data.reason || "Termin"}`;
+
+  const fmt = (d: Date) =>
+    d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 
   let dtstart: string;
   let dtend: string;
 
-  if (appointment.appointmentDate) {
-    try {
-      const start = new Date(appointment.appointmentDate);
-      if (!isNaN(start.getTime())) {
-        const end = new Date(start.getTime() + 60 * 60 * 1000);
-        const fmt = (d: Date) =>
-          d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-        dtstart = fmt(start);
-        dtend = fmt(end);
-      } else {
-        // Fallback: now + 1h
-        const now = new Date();
-        const later = new Date(now.getTime() + 60 * 60 * 1000);
-        const fmt = (d: Date) =>
-          d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-        dtstart = fmt(now);
-        dtend = fmt(later);
-      }
-    } catch {
+  if (data.appointmentDate) {
+    const start = parseDate(data.appointmentDate);
+    if (start) {
+      const end = new Date(start.getTime() + 60 * 60 * 1000);
+      dtstart = fmt(start);
+      dtend = fmt(end);
+    } else {
       const now = new Date();
-      const later = new Date(now.getTime() + 60 * 60 * 1000);
-      const fmt = (d: Date) =>
-        d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
       dtstart = fmt(now);
-      dtend = fmt(later);
+      dtend = fmt(new Date(now.getTime() + 60 * 60 * 1000));
     }
   } else {
     const now = new Date();
-    const later = new Date(now.getTime() + 60 * 60 * 1000);
-    const fmt = (d: Date) =>
-      d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
     dtstart = fmt(now);
-    dtend = fmt(later);
+    dtend = fmt(new Date(now.getTime() + 60 * 60 * 1000));
   }
 
   const descriptionParts = [
-    appointment.callerName && `Kunde: ${appointment.callerName}`,
-    appointment.callerPhone && `Telefon: ${appointment.callerPhone}`,
-    appointment.callerEmail && `E-Mail: ${appointment.callerEmail}`,
-    appointment.reason && `Anliegen: ${appointment.reason}`,
-    appointment.notes && `Notizen: ${appointment.notes}`,
+    data.callerName && `Kunde: ${data.callerName}`,
+    data.callerPhone && `Telefon: ${data.callerPhone}`,
+    data.callerEmail && `E-Mail: ${data.callerEmail}`,
+    data.reason && `Anliegen: ${data.reason}`,
+    data.notes && `Notizen: ${data.notes}`,
   ].filter(Boolean);
 
   const description = descriptionParts.join("\\n");
@@ -61,7 +67,7 @@ function generateICS(appointment: Appointment): string {
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
     `UID:${uid}`,
-    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "")}`,
+    `DTSTAMP:${fmt(new Date())}`,
     `DTSTART:${dtstart}`,
     `DTEND:${dtend}`,
     `SUMMARY:${summary}`,
@@ -72,7 +78,7 @@ function generateICS(appointment: Appointment): string {
   ].join("\r\n");
 }
 
-export async function createCalendarEvent(appointment: Appointment): Promise<void> {
+export async function createCalendarEvent(data: CalendarEventData): Promise<void> {
   const serverUrl = process.env.CALDAV_URL;
   const calendarUrl = process.env.CALDAV_CALENDAR_URL;
   const username = process.env.CALDAV_USERNAME;
@@ -94,15 +100,12 @@ export async function createCalendarEvent(appointment: Appointment): Promise<voi
   let calendar;
 
   if (calendarUrl) {
-    // Use the specific calendar URL from env
     const calendars = await client.fetchCalendars();
     calendar = calendars.find((c) => c.url === calendarUrl || c.url.includes(calendarUrl));
     if (!calendar) {
-      // Fallback: use the URL directly as calendar object
       calendar = { url: calendarUrl };
     }
   } else {
-    // Fallback: use first available calendar
     const calendars = await client.fetchCalendars();
     if (calendars.length === 0) {
       throw new Error("Kein Kalender gefunden.");
@@ -110,8 +113,8 @@ export async function createCalendarEvent(appointment: Appointment): Promise<voi
     calendar = calendars[0];
   }
 
-  const iCalString = generateICS(appointment);
-  const filename = `${appointment.id}.ics`;
+  const iCalString = generateICS(data);
+  const filename = `${data.id}.ics`;
 
   const result = await client.createCalendarObject({
     calendar,

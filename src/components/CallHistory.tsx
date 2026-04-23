@@ -22,6 +22,8 @@ import {
   PhoneIncoming,
   Trash2,
   Mail,
+  CalendarPlus,
+  Loader2,
 } from "lucide-react";
 
 function formatDuration(seconds?: number): string {
@@ -101,9 +103,11 @@ function urgencyBadge(urgency?: string) {
   );
 }
 
-function CallItem({ call }: { call: CallLog }) {
+function CallItem({ call, onBookCalendar, bookingId }: { call: CallLog; onBookCalendar: (call: CallLog) => void; bookingId: string | null }) {
   const [expanded, setExpanded] = useState(false);
+  const [booked, setBooked] = useState(false);
   const data = call.structuredData;
+  const isBooking = bookingId === call.id;
 
   return (
     <div
@@ -278,6 +282,33 @@ function CallItem({ call }: { call: CallLog }) {
             </div>
           )}
 
+          {/* Eintragen Button */}
+          {data && (
+            <div className="flex items-center gap-3">
+              <Button
+                size="sm"
+                className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white"
+                onClick={() => {
+                  onBookCalendar(call);
+                  setBooked(true);
+                }}
+                disabled={isBooking || booked}
+              >
+                {isBooking ? (
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                ) : booked ? (
+                  <CheckCircle2 className="mr-1.5 h-4 w-4" />
+                ) : (
+                  <CalendarPlus className="mr-1.5 h-4 w-4" />
+                )}
+                {isBooking ? "Wird eingetragen..." : booked ? "Eingetragen" : "In Kalender eintragen"}
+              </Button>
+              {booked && (
+                <span className="text-xs text-emerald-400">Termin wurde im Kalender gespeichert</span>
+              )}
+            </div>
+          )}
+
           {/* Summary */}
           {call.summary && (
             <div className="rounded-xl border border-border/50 bg-background/30 p-4">
@@ -318,6 +349,35 @@ export function CallHistory() {
   const [calls, setCalls] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [bookingId, setBookingId] = useState<string | null>(null);
+
+  const handleBookCalendar = async (call: CallLog) => {
+    setBookingId(call.id);
+    try {
+      const sd = call.structuredData || {};
+      const res = await fetch("/api/calendar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          callId: call.id,
+          callerName: sd.callerName,
+          callerPhone: sd.callerPhone || call.phoneNumber,
+          callerEmail: sd.callerEmail,
+          reason: sd.reason,
+          appointmentDate: sd.appointmentDate,
+          notes: sd.notes,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Fehler beim Kalender-Eintrag.");
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Fehler beim Eintragen.");
+    } finally {
+      setBookingId(null);
+    }
+  };
 
   const fetchCalls = async () => {
     setLoading(true);
@@ -462,7 +522,7 @@ export function CallHistory() {
       ) : (
         <div className="space-y-2">
           {calls.map((call) => (
-            <CallItem key={call.id} call={call} />
+            <CallItem key={call.id} call={call} onBookCalendar={handleBookCalendar} bookingId={bookingId} />
           ))}
         </div>
       )}

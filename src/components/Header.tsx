@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Phone, Settings, ClipboardList, CalendarCheck, Zap } from "lucide-react";
+import { Phone, Settings, ClipboardList, Zap } from "lucide-react";
 
 export function Header() {
   const pathname = usePathname();
 
   const links = [
     { href: "/", label: "Agent konfigurieren", icon: Settings },
-    { href: "/appointments", label: "Termine", icon: CalendarCheck },
     { href: "/calls", label: "Anrufprotokoll", icon: ClipboardList },
   ];
 

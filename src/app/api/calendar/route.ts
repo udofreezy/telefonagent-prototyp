@@ -1,30 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAppointments } from "@/lib/store";
 import { createCalendarEvent } from "@/lib/caldav";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { appointmentId } = body;
+    const { callId, callerName, callerPhone, callerEmail, reason, appointmentDate, notes } = body;
 
-    if (!appointmentId) {
+    if (!callId) {
       return NextResponse.json(
-        { error: "appointmentId erforderlich." },
+        { error: "callId erforderlich." },
         { status: 400 }
       );
     }
 
-    const appointments = await getAppointments();
-    const appointment = appointments.find((a) => a.id === appointmentId);
-
-    if (!appointment) {
-      return NextResponse.json(
-        { error: "Termin nicht gefunden." },
-        { status: 404 }
-      );
-    }
-
-    await createCalendarEvent(appointment);
+    await createCalendarEvent({
+      id: `call-${callId}`,
+      callerName,
+      callerPhone,
+      callerEmail,
+      reason,
+      appointmentDate,
+      notes,
+    });
 
     return NextResponse.json({ ok: true });
   } catch (error) {
