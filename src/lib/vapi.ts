@@ -30,6 +30,9 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
       provider: "deepgram" as const,
       language: "de" as const,
       model: "nova-2" as const,
+      smartFormat: true,
+      numerals: true,
+      endpointing: 300,
     },
     model: {
       provider: "anthropic" as const,
@@ -46,7 +49,7 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
     voice: {
       provider: "11labs" as const,
       voiceId: config.voiceId || "XrExE9yKIg1WjnnlVkGX" as const, // Matilda - multilingual, DE
-      model: "eleven_turbo_v2_5" as const,
+      model: "eleven_multilingual_v2" as const,
       language: "de",
       stability: 0.35,
       similarityBoost: 0.8,
@@ -55,7 +58,11 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
       speed: 0.95,
       optimizeStreamingLatency: 3,
       enableSsmlParsing: true,
+      fillerInjectionEnabled: false,
     },
+    backgroundSound: "off" as const,
+    backchannelingEnabled: false,
+    backgroundDenoisingEnabled: true,
     silenceTimeoutSeconds: 30,
     maxDurationSeconds: 600,
     endCallMessage: "Vielen Dank für Ihren Anruf. Auf Wiederhören!",

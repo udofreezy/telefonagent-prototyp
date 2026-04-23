@@ -28,9 +28,8 @@ async function syncAppointmentsFromCalls() {
       const stored = storedById.get(id);
       const sd =
         (analysis.structuredData as CallStructuredData | undefined) ||
-        stored?.structuredData;
-
-      if (!sd?.appointmentRequested) continue;
+        stored?.structuredData ||
+        {};
 
       await saveAppointment({
         id: `apt-${id}-${Date.now()}`,

@@ -37,9 +37,9 @@ export async function POST(request: NextRequest) {
           };
           await saveCallLog(callLog);
 
-          // Auto-create appointment if requested
-          if (analysis.structuredData?.appointmentRequested) {
-            const sd = analysis.structuredData;
+          // Auto-create appointment entry from every call
+          {
+            const sd = analysis.structuredData || {};
             await saveAppointment({
               id: `apt-${call.id}-${Date.now()}`,
               callId: call.id,

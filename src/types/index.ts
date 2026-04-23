@@ -52,7 +52,7 @@ export interface Appointment {
   appointmentDate?: string;
   reason?: string;
   notes?: string;
-  status: "pending" | "confirmed" | "deleted";
+  status: "pending" | "confirmed" | "rejected" | "deleted";
   createdAt: string;
 }
 

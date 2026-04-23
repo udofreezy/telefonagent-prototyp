@@ -2,11 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { CallLog } from "@/types";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Loader2,
   Phone,
   Clock,
   RefreshCw,
@@ -23,6 +21,7 @@ import {
   TrendingUp,
   PhoneIncoming,
   Trash2,
+  Mail,
 } from "lucide-react";
 
 function formatDuration(seconds?: number): string {
@@ -102,109 +101,9 @@ function urgencyBadge(urgency?: string) {
   );
 }
 
-function StructuredDataCard({ call }: { call: CallLog }) {
-  const data = call.structuredData;
-  if (!data) return null;
-
-  const hasAnyData =
-    data.callerName || data.callerPhone || data.reason ||
-    data.appointmentRequested || data.callbackRequested ||
-    data.urgency || data.notes;
-
-  if (!hasAnyData) return null;
-
-  return (
-    <div className="rounded-xl border border-border/50 bg-background/30 p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Gesprächsnotiz
-        </p>
-        <div className="flex items-center gap-2">
-          {urgencyBadge(data.urgency)}
-          {call.successEvaluation && (
-            <span
-              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium ${
-                call.successEvaluation.toLowerCase().includes("pass") ||
-                call.successEvaluation.toLowerCase() === "true"
-                  ? "bg-emerald-500/10 text-emerald-400"
-                  : "bg-muted text-muted-foreground"
-              }`}
-            >
-              {call.successEvaluation.toLowerCase().includes("pass") ||
-              call.successEvaluation.toLowerCase() === "true" ? (
-                <CheckCircle2 className="h-3 w-3" />
-              ) : (
-                <XCircle className="h-3 w-3" />
-              )}
-              {call.successEvaluation}
-            </span>
-          )}
-        </div>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {data.callerName && (
-          <div className="flex items-start gap-2.5">
-            <User className="mt-0.5 h-4 w-4 shrink-0 text-[#ff6b35]" />
-            <div className="min-w-0">
-              <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Anrufer</p>
-              <p className="truncate text-sm font-medium">{data.callerName}</p>
-            </div>
-          </div>
-        )}
-        {data.callerPhone && (
-          <div className="flex items-start gap-2.5">
-            <Phone className="mt-0.5 h-4 w-4 shrink-0 text-[#ff6b35]" />
-            <div className="min-w-0">
-              <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Telefon</p>
-              <p className="truncate text-sm font-medium">{data.callerPhone}</p>
-            </div>
-          </div>
-        )}
-        {data.reason && (
-          <div className="flex items-start gap-2.5 sm:col-span-2">
-            <FileText className="mt-0.5 h-4 w-4 shrink-0 text-[#ff6b35]" />
-            <div className="min-w-0">
-              <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Anliegen</p>
-              <p className="text-sm">{data.reason}</p>
-            </div>
-          </div>
-        )}
-        {data.appointmentRequested && (
-          <div className="flex items-start gap-2.5">
-            <CalendarCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-            <div className="min-w-0">
-              <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Termin gewünscht</p>
-              <p className="text-sm font-medium">
-                {data.appointmentDate || "Ja (Details folgen)"}
-              </p>
-            </div>
-          </div>
-        )}
-        {data.callbackRequested && (
-          <div className="flex items-start gap-2.5">
-            <PhoneCall className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
-            <div className="min-w-0">
-              <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Rückruf erwünscht</p>
-              <p className="text-sm font-medium">Ja</p>
-            </div>
-          </div>
-        )}
-        {data.notes && (
-          <div className="flex items-start gap-2.5 sm:col-span-2">
-            <FileText className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-            <div className="min-w-0">
-              <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Notizen</p>
-              <p className="text-sm">{data.notes}</p>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 function CallItem({ call }: { call: CallLog }) {
   const [expanded, setExpanded] = useState(false);
+  const data = call.structuredData;
 
   return (
     <div
@@ -214,12 +113,13 @@ function CallItem({ call }: { call: CallLog }) {
           : "border-border/50 bg-card hover:border-border"
       }`}
     >
+      {/* Collapsed view: compact row with key info */}
       <div
-        className="flex cursor-pointer items-start justify-between p-4"
+        className="flex cursor-pointer items-center justify-between gap-3 p-4"
         onClick={() => setExpanded(!expanded)}
       >
-        <div className="flex items-start gap-3">
-          <div className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+        <div className="flex min-w-0 items-center gap-3">
+          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
             call.status === "ended"
               ? "bg-muted text-muted-foreground"
               : "bg-emerald-500/10 text-emerald-500"
@@ -230,30 +130,29 @@ function CallItem({ call }: { call: CallLog }) {
               <Phone className="h-4 w-4" />
             )}
           </div>
-          <div className="min-w-0">
-            <p className="font-medium">
-              {call.structuredData?.callerName || call.phoneNumber || "Unbekannte Nummer"}
-            </p>
-            {call.structuredData?.callerName && call.phoneNumber && (
-              <p className="text-xs text-muted-foreground">{call.phoneNumber}</p>
-            )}
-            <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <p className="font-semibold truncate">
+                {data?.callerName || call.phoneNumber || "Unbekannte Nummer"}
+              </p>
+              {data?.callerName && call.phoneNumber && (
+                <span className="text-xs text-muted-foreground">{call.phoneNumber}</span>
+              )}
+            </div>
+            <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+              {data?.reason && (
+                <span className="truncate max-w-[250px] italic">{data.reason}</span>
+              )}
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 {formatDate(call.startedAt)}
               </span>
-              <span className="text-border">|</span>
               <span>{formatDuration(call.duration)}</span>
             </div>
-            {call.structuredData?.reason && (
-              <p className="mt-1.5 line-clamp-1 text-xs italic text-muted-foreground">
-                {call.structuredData.reason}
-              </p>
-            )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {urgencyBadge(call.structuredData?.urgency)}
+        <div className="flex shrink-0 items-center gap-2">
+          {urgencyBadge(data?.urgency)}
           {statusBadge(call.status)}
           <div className={`ml-1 flex h-6 w-6 items-center justify-center rounded-md transition-colors ${
             expanded ? "bg-[#ff6b35]/10 text-[#ff6b35]" : "text-muted-foreground"
@@ -267,9 +166,119 @@ function CallItem({ call }: { call: CallLog }) {
         </div>
       </div>
 
+      {/* Expanded view: full details */}
       {expanded && (
         <div className="animate-fade-in-up space-y-4 border-t border-border/50 px-4 pb-4 pt-4">
-          <StructuredDataCard call={call} />
+          {/* Structured data details */}
+          {data && (
+            <div className="rounded-xl border border-border/50 bg-background/30 p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Gesprächsnotiz
+                </p>
+                <div className="flex items-center gap-2">
+                  {call.successEvaluation && (
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium ${
+                        call.successEvaluation.toLowerCase().includes("pass") ||
+                        call.successEvaluation.toLowerCase() === "true"
+                          ? "bg-emerald-500/10 text-emerald-400"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {call.successEvaluation.toLowerCase().includes("pass") ||
+                      call.successEvaluation.toLowerCase() === "true" ? (
+                        <CheckCircle2 className="h-3 w-3" />
+                      ) : (
+                        <XCircle className="h-3 w-3" />
+                      )}
+                      {call.successEvaluation}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {data.callerName && (
+                  <div className="flex items-start gap-2.5">
+                    <User className="mt-0.5 h-4 w-4 shrink-0 text-[#ff6b35]" />
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Anrufer</p>
+                      <p className="truncate text-sm font-medium">{data.callerName}</p>
+                    </div>
+                  </div>
+                )}
+                {data.callerPhone && (
+                  <div className="flex items-start gap-2.5">
+                    <Phone className="mt-0.5 h-4 w-4 shrink-0 text-[#ff6b35]" />
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Telefon</p>
+                      <p className="truncate text-sm font-medium">{data.callerPhone}</p>
+                    </div>
+                  </div>
+                )}
+                {data.callerEmail && (
+                  <div className="flex items-start gap-2.5">
+                    <Mail className="mt-0.5 h-4 w-4 shrink-0 text-[#ff6b35]" />
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">E-Mail</p>
+                      <a href={`mailto:${data.callerEmail}`} className="truncate text-sm font-medium hover:text-[#ff6b35] transition-colors">
+                        {data.callerEmail}
+                      </a>
+                    </div>
+                  </div>
+                )}
+                {data.reason && (
+                  <div className="flex items-start gap-2.5 sm:col-span-2">
+                    <FileText className="mt-0.5 h-4 w-4 shrink-0 text-[#ff6b35]" />
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Anliegen</p>
+                      <p className="text-sm">{data.reason}</p>
+                    </div>
+                  </div>
+                )}
+                {data.appointmentRequested && (
+                  <div className="flex items-start gap-2.5">
+                    <CalendarCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Termin gewünscht</p>
+                      <p className="text-sm font-medium">
+                        {data.appointmentDate || "Ja (Details folgen)"}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {data.callbackRequested && (
+                  <div className="flex items-start gap-2.5">
+                    <PhoneCall className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Rückruf erwünscht</p>
+                      <p className="text-sm font-medium">Ja</p>
+                    </div>
+                  </div>
+                )}
+                {data.urgency && (
+                  <div className="flex items-start gap-2.5">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Dringlichkeit</p>
+                      <p className="text-sm font-medium">{data.urgency}</p>
+                    </div>
+                  </div>
+                )}
+                {data.notes && (
+                  <div className="flex items-start gap-2.5 sm:col-span-2">
+                    <FileText className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Notizen</p>
+                      <p className="text-sm">{data.notes}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Summary */}
           {call.summary && (
             <div className="rounded-xl border border-border/50 bg-background/30 p-4">
               <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -278,6 +287,8 @@ function CallItem({ call }: { call: CallLog }) {
               <p className="whitespace-pre-wrap text-sm leading-relaxed">{call.summary}</p>
             </div>
           )}
+
+          {/* Transcript */}
           {call.transcript && (
             <div className="rounded-xl border border-border/50 bg-background/30 p-4">
               <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -290,6 +301,8 @@ function CallItem({ call }: { call: CallLog }) {
               </ScrollArea>
             </div>
           )}
+
+          {/* Cost */}
           {call.cost !== undefined && (
             <p className="text-xs text-muted-foreground">
               Kosten: ${call.cost.toFixed(4)}
@@ -447,7 +460,7 @@ export function CallHistory() {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {calls.map((call) => (
             <CallItem key={call.id} call={call} />
           ))}

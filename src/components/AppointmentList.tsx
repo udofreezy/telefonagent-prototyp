@@ -4,11 +4,9 @@ import { useState, useEffect } from "react";
 import { Appointment } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
-  Loader2,
   RefreshCw,
   CalendarCheck,
   Trash2,
-  User,
   Phone,
   Mail,
   Clock,
@@ -17,6 +15,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Calendar,
+  XCircle,
+  Ban,
 } from "lucide-react";
 
 function formatDate(dateStr?: string): string {
@@ -39,13 +39,12 @@ function buildGoogleCalendarUrl(appointment: Appointment): string {
     `Termin: ${appointment.callerName || "Kunde"} – ${appointment.reason || "Termin"}`
   );
 
-  // Try to parse appointment date for start/end times
   let dates = "";
   if (appointment.appointmentDate) {
     try {
       const start = new Date(appointment.appointmentDate);
       if (!isNaN(start.getTime())) {
-        const end = new Date(start.getTime() + 60 * 60 * 1000); // +1 hour
+        const end = new Date(start.getTime() + 60 * 60 * 1000);
         const fmt = (d: Date) =>
           d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
         dates = `&dates=${fmt(start)}/${fmt(end)}`;
@@ -86,6 +85,13 @@ function statusBadge(status: string) {
           Bestätigt
         </span>
       );
+    case "rejected":
+      return (
+        <span className="inline-flex items-center gap-1 rounded-md bg-red-500/10 px-2 py-0.5 text-xs font-medium text-red-400">
+          <XCircle className="h-3 w-3" />
+          Abgelehnt
+        </span>
+      );
     default:
       return null;
   }
@@ -94,149 +100,141 @@ function statusBadge(status: string) {
 function AppointmentCard({
   appointment,
   onConfirm,
+  onReject,
   onDelete,
 }: {
   appointment: Appointment;
   onConfirm: (id: string) => void;
+  onReject: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
+  const isRejected = appointment.status === "rejected";
+
   return (
     <div
-      className={`rounded-xl border transition-all duration-200 card-hover ${
-        appointment.status === "pending"
-          ? "border-amber-500/20 bg-card"
-          : "border-emerald-500/20 bg-card"
+      className={`rounded-xl border transition-all duration-200 ${
+        isRejected
+          ? "border-border/30 bg-card/50 opacity-60"
+          : appointment.status === "pending"
+            ? "border-amber-500/20 bg-card card-hover"
+            : "border-emerald-500/20 bg-card card-hover"
       }`}
     >
-      <div className="p-5">
-        {/* Header */}
-        <div className="mb-4 flex items-start justify-between">
-          <div className="flex items-center gap-3">
+      <div className="p-4">
+        {/* Compact header row */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
             <div
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                appointment.status === "pending"
-                  ? "bg-amber-500/10 text-amber-500"
-                  : "bg-emerald-500/10 text-emerald-500"
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+                isRejected
+                  ? "bg-muted text-muted-foreground"
+                  : appointment.status === "pending"
+                    ? "bg-amber-500/10 text-amber-500"
+                    : "bg-emerald-500/10 text-emerald-500"
               }`}
             >
-              <CalendarCheck className="h-5 w-5" />
+              <CalendarCheck className="h-4 w-4" />
             </div>
-            <div>
-              <p className="font-semibold">
-                {appointment.callerName || "Unbekannter Anrufer"}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Erstellt: {formatDate(appointment.createdAt)}
-              </p>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <p className={`font-semibold truncate ${isRejected ? "line-through text-muted-foreground" : ""}`}>
+                  {appointment.callerName || "Unbekannter Anrufer"}
+                </p>
+                {statusBadge(appointment.status)}
+              </div>
+              <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                {appointment.callerPhone && (
+                  <span className="flex items-center gap-1">
+                    <Phone className="h-3 w-3" />
+                    <a href={`tel:${appointment.callerPhone}`} className="hover:text-[#ff6b35] transition-colors">
+                      {appointment.callerPhone}
+                    </a>
+                  </span>
+                )}
+                {appointment.reason && (
+                  <span className={`truncate max-w-[200px] ${isRejected ? "line-through" : ""}`}>
+                    {appointment.reason}
+                  </span>
+                )}
+                {appointment.appointmentDate && (
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {appointment.appointmentDate}
+                  </span>
+                )}
+                <span className="text-muted-foreground/60">
+                  {formatDate(appointment.createdAt)}
+                </span>
+              </div>
             </div>
           </div>
-          {statusBadge(appointment.status)}
+
+          {/* Action buttons */}
+          <div className="flex shrink-0 items-center gap-1.5">
+            {appointment.status === "pending" && (
+              <>
+                <Button
+                  size="sm"
+                  className="h-8 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
+                  onClick={() => onConfirm(appointment.id)}
+                >
+                  <CalendarPlus className="mr-1.5 h-3.5 w-3.5" />
+                  Eintragen
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 rounded-lg text-red-400 hover:bg-red-500/10 hover:text-red-400 text-xs"
+                  onClick={() => onReject(appointment.id)}
+                >
+                  <Ban className="mr-1.5 h-3.5 w-3.5" />
+                  Ablehnen
+                </Button>
+              </>
+            )}
+            {appointment.status === "confirmed" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 rounded-lg text-xs"
+                onClick={() => {
+                  window.open(buildGoogleCalendarUrl(appointment), "_blank");
+                }}
+              >
+                <CalendarPlus className="mr-1.5 h-3.5 w-3.5" />
+                Kalender
+              </Button>
+            )}
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 w-8 rounded-lg p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              onClick={() => onDelete(appointment.id)}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
         </div>
 
-        {/* Details Grid */}
-        <div className="mb-4 grid gap-3 sm:grid-cols-2">
-          {appointment.callerPhone && (
-            <div className="flex items-start gap-2.5">
-              <Phone className="mt-0.5 h-4 w-4 shrink-0 text-[#ff6b35]" />
-              <div className="min-w-0">
-                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Telefon
-                </p>
-                <a
-                  href={`tel:${appointment.callerPhone}`}
-                  className="text-sm font-medium hover:text-[#ff6b35] transition-colors"
-                >
-                  {appointment.callerPhone}
-                </a>
-              </div>
-            </div>
-          )}
-          {appointment.callerEmail && (
-            <div className="flex items-start gap-2.5">
-              <Mail className="mt-0.5 h-4 w-4 shrink-0 text-[#ff6b35]" />
-              <div className="min-w-0">
-                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                  E-Mail
-                </p>
-                <a
-                  href={`mailto:${appointment.callerEmail}`}
-                  className="truncate text-sm font-medium hover:text-[#ff6b35] transition-colors"
-                >
+        {/* Extra details row for email/notes (only if present and not rejected) */}
+        {!isRejected && (appointment.callerEmail || appointment.notes) && (
+          <div className="mt-2 ml-12 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            {appointment.callerEmail && (
+              <span className="flex items-center gap-1">
+                <Mail className="h-3 w-3" />
+                <a href={`mailto:${appointment.callerEmail}`} className="hover:text-[#ff6b35] transition-colors">
                   {appointment.callerEmail}
                 </a>
-              </div>
-            </div>
-          )}
-          {appointment.appointmentDate && (
-            <div className="flex items-start gap-2.5">
-              <Clock className="mt-0.5 h-4 w-4 shrink-0 text-[#ff6b35]" />
-              <div className="min-w-0">
-                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Gewünschter Termin
-                </p>
-                <p className="text-sm font-medium">{appointment.appointmentDate}</p>
-              </div>
-            </div>
-          )}
-          {appointment.reason && (
-            <div className="flex items-start gap-2.5 sm:col-span-2">
-              <FileText className="mt-0.5 h-4 w-4 shrink-0 text-[#ff6b35]" />
-              <div className="min-w-0">
-                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Anliegen
-                </p>
-                <p className="text-sm">{appointment.reason}</p>
-              </div>
-            </div>
-          )}
-          {appointment.notes && (
-            <div className="flex items-start gap-2.5 sm:col-span-2">
-              <FileText className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Notizen
-                </p>
-                <p className="text-sm">{appointment.notes}</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-2 border-t border-border/50 pt-4">
-          {appointment.status === "pending" && (
-            <Button
-              size="sm"
-              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
-              onClick={() => onConfirm(appointment.id)}
-            >
-              <CalendarPlus className="mr-2 h-4 w-4" />
-              Bestätigen & Kalender
-            </Button>
-          )}
-          {appointment.status === "confirmed" && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="rounded-xl"
-              onClick={() => {
-                window.open(buildGoogleCalendarUrl(appointment), "_blank");
-              }}
-            >
-              <CalendarPlus className="mr-2 h-4 w-4" />
-              In Kalender öffnen
-            </Button>
-          )}
-          <Button
-            size="sm"
-            variant="outline"
-            className="rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive"
-            onClick={() => onDelete(appointment.id)}
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Löschen
-          </Button>
-        </div>
+              </span>
+            )}
+            {appointment.notes && (
+              <span className="flex items-center gap-1">
+                <FileText className="h-3 w-3" />
+                {appointment.notes}
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -277,18 +275,33 @@ export function AppointmentList() {
       });
       if (!res.ok) throw new Error("Fehler beim Bestätigen.");
 
-      // Open Google Calendar
       const appointment = appointments.find((a) => a.id === id);
       if (appointment) {
         window.open(buildGoogleCalendarUrl(appointment), "_blank");
       }
 
-      // Update local state
       setAppointments((prev) =>
         prev.map((a) => (a.id === id ? { ...a, status: "confirmed" as const } : a))
       );
     } catch (err) {
       alert(err instanceof Error ? err.message : "Fehler beim Bestätigen.");
+    }
+  };
+
+  const handleReject = async (id: string) => {
+    try {
+      const res = await fetch("/api/appointments", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: "rejected" }),
+      });
+      if (!res.ok) throw new Error("Fehler beim Ablehnen.");
+
+      setAppointments((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, status: "rejected" as const } : a))
+      );
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Fehler beim Ablehnen.");
     }
   };
 
@@ -304,16 +317,19 @@ export function AppointmentList() {
     }
   };
 
-  // Filter out deleted, show active ones
   const visible = appointments.filter((a) => a.status !== "deleted");
   const pending = visible.filter((a) => a.status === "pending");
   const confirmed = visible.filter((a) => a.status === "confirmed");
+  const rejected = visible.filter((a) => a.status === "rejected");
+
+  // Sort: pending first, then confirmed, then rejected
+  const sorted = [...pending, ...confirmed, ...rejected];
 
   return (
     <div className="space-y-6">
       {/* Stats */}
       {visible.length > 0 && (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           <div className="rounded-2xl border border-border/50 bg-card p-5">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10">
@@ -338,6 +354,17 @@ export function AppointmentList() {
           </div>
           <div className="rounded-2xl border border-border/50 bg-card p-5">
             <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10">
+                <XCircle className="h-5 w-5 text-red-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{rejected.length}</p>
+                <p className="text-xs text-muted-foreground">Abgelehnt</p>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-border/50 bg-card p-5">
+            <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#ff6b35]/10">
                 <Calendar className="h-5 w-5 text-[#ff6b35]" />
               </div>
@@ -355,8 +382,7 @@ export function AppointmentList() {
         <div>
           <h2 className="text-lg font-semibold">Terminliste</h2>
           <p className="text-sm text-muted-foreground">
-            Alle Terminanfragen aus Anrufen. Bestätigen Sie Termine und tragen Sie
-            sie in den Kalender ein.
+            Alle Anrufe als Termineinträge. Bestätigen, ablehnen oder löschen Sie Einträge.
           </p>
         </div>
         <Button
@@ -395,18 +421,17 @@ export function AppointmentList() {
           </div>
           <p className="mt-4 text-sm font-medium">Noch keine Termine</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Termine werden automatisch aus Anrufen erstellt, wenn ein Termin
-            angefragt wird.
+            Termine werden automatisch aus jedem Anruf erstellt.
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {/* Pending first, then confirmed */}
-          {[...pending, ...confirmed].map((appointment) => (
+        <div className="space-y-2">
+          {sorted.map((appointment) => (
             <AppointmentCard
               key={appointment.id}
               appointment={appointment}
               onConfirm={handleConfirm}
+              onReject={handleReject}
               onDelete={handleDelete}
             />
           ))}
