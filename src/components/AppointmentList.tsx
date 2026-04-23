@@ -17,6 +17,7 @@ import {
   Calendar,
   XCircle,
   Ban,
+  Loader2,
 } from "lucide-react";
 
 function formatDate(dateStr?: string): string {
@@ -32,41 +33,6 @@ function formatDate(dateStr?: string): string {
   } catch {
     return dateStr;
   }
-}
-
-function buildGoogleCalendarUrl(appointment: Appointment): string {
-  const title = encodeURIComponent(
-    `Termin: ${appointment.callerName || "Kunde"} – ${appointment.reason || "Termin"}`
-  );
-
-  let dates = "";
-  if (appointment.appointmentDate) {
-    try {
-      const start = new Date(appointment.appointmentDate);
-      if (!isNaN(start.getTime())) {
-        const end = new Date(start.getTime() + 60 * 60 * 1000);
-        const fmt = (d: Date) =>
-          d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-        dates = `&dates=${fmt(start)}/${fmt(end)}`;
-      }
-    } catch {
-      // ignore parse errors
-    }
-  }
-
-  const details = encodeURIComponent(
-    [
-      appointment.callerName && `Kunde: ${appointment.callerName}`,
-      appointment.callerPhone && `Telefon: ${appointment.callerPhone}`,
-      appointment.callerEmail && `E-Mail: ${appointment.callerEmail}`,
-      appointment.reason && `Anliegen: ${appointment.reason}`,
-      appointment.notes && `Notizen: ${appointment.notes}`,
-    ]
-      .filter(Boolean)
-      .join("\n")
-  );
-
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}${dates}&details=${details}`;
 }
 
 function statusBadge(status: string) {
@@ -102,13 +68,16 @@ function AppointmentCard({
   onConfirm,
   onReject,
   onDelete,
+  confirmingId,
 }: {
   appointment: Appointment;
   onConfirm: (id: string) => void;
   onReject: (id: string) => void;
   onDelete: (id: string) => void;
+  confirmingId: string | null;
 }) {
   const isRejected = appointment.status === "rejected";
+  const isConfirming = confirmingId === appointment.id;
 
   return (
     <div
@@ -177,33 +146,26 @@ function AppointmentCard({
                   size="sm"
                   className="h-8 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
                   onClick={() => onConfirm(appointment.id)}
+                  disabled={isConfirming}
                 >
-                  <CalendarPlus className="mr-1.5 h-3.5 w-3.5" />
-                  Eintragen
+                  {isConfirming ? (
+                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <CalendarPlus className="mr-1.5 h-3.5 w-3.5" />
+                  )}
+                  {isConfirming ? "Wird eingetragen..." : "Eintragen"}
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   className="h-8 rounded-lg text-red-400 hover:bg-red-500/10 hover:text-red-400 text-xs"
                   onClick={() => onReject(appointment.id)}
+                  disabled={isConfirming}
                 >
                   <Ban className="mr-1.5 h-3.5 w-3.5" />
                   Ablehnen
                 </Button>
               </>
-            )}
-            {appointment.status === "confirmed" && (
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-8 rounded-lg text-xs"
-                onClick={() => {
-                  window.open(buildGoogleCalendarUrl(appointment), "_blank");
-                }}
-              >
-                <CalendarPlus className="mr-1.5 h-3.5 w-3.5" />
-                Kalender
-              </Button>
             )}
             <Button
               size="sm"
@@ -244,6 +206,7 @@ export function AppointmentList() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   const fetchAppointments = async () => {
     setLoading(true);
@@ -267,24 +230,35 @@ export function AppointmentList() {
   }, []);
 
   const handleConfirm = async (id: string) => {
+    setConfirmingId(id);
     try {
-      const res = await fetch("/api/appointments", {
+      // 1. Status auf confirmed setzen
+      const patchRes = await fetch("/api/appointments", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, status: "confirmed" }),
       });
-      if (!res.ok) throw new Error("Fehler beim Bestätigen.");
+      if (!patchRes.ok) throw new Error("Fehler beim Bestätigen.");
 
-      const appointment = appointments.find((a) => a.id === id);
-      if (appointment) {
-        window.open(buildGoogleCalendarUrl(appointment), "_blank");
+      // 2. In den Kalender eintragen via CalDAV
+      const calRes = await fetch("/api/calendar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appointmentId: id }),
+      });
+
+      if (!calRes.ok) {
+        const data = await calRes.json().catch(() => ({}));
+        throw new Error(data.error || "Fehler beim Kalender-Eintrag.");
       }
 
       setAppointments((prev) =>
         prev.map((a) => (a.id === id ? { ...a, status: "confirmed" as const } : a))
       );
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Fehler beim Bestätigen.");
+      alert(err instanceof Error ? err.message : "Fehler beim Eintragen.");
+    } finally {
+      setConfirmingId(null);
     }
   };
 
@@ -433,6 +407,7 @@ export function AppointmentList() {
               onConfirm={handleConfirm}
               onReject={handleReject}
               onDelete={handleDelete}
+              confirmingId={confirmingId}
             />
           ))}
         </div>
