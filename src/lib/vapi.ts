@@ -105,7 +105,13 @@ Sei präzise, aber vollständig. Notiere alle konkreten Informationen, die der A
           {
             role: "system" as const,
             content:
-              "Extrahiere die strukturierten Daten aus dem Telefongespräch. Notiere das Anliegen/den Grund des Anrufs so präzise wie möglich (z.B. 'Kontrolle', 'Zahnreinigung', 'Beratung Trauringe', nicht einfach nur 'Termin'). Wenn ein Feld nicht genannt wurde, lasse es leer. Die Telefonnummer kommt automatisch vom System – extrahiere sie nur wenn sie explizit im Gespräch genannt wird.",
+              `Extrahiere die strukturierten Daten aus dem Telefongespräch.
+
+WICHTIGE REGELN:
+- Notiere das Anliegen/den Grund des Anrufs so präzise wie möglich (z.B. "Kontrolle", "Zahnreinigung", "Beratung Trauringe", NICHT einfach nur "Termin").
+- Wenn ein Feld nicht genannt wurde, lasse es leer.
+- Die Telefonnummer kommt automatisch vom System – extrahiere sie nur wenn sie explizit im Gespräch genannt wird.
+- DATUM/UHRZEIT: Löse relative Zeitangaben wie "morgen", "übermorgen", "nächste Woche", "am Montag" in ein konkretes Datum auf. Das Gespräch fand am {{call.startedAt}} statt. Berechne das korrekte Datum relativ dazu. Format: "DD.MM.YYYY HH:mm" (z.B. "24.04.2026 13:00"). Wenn der Agent im Gespräch ein konkretes Datum bestätigt hat, verwende dieses.`,
           },
           {
             role: "user" as const,
@@ -116,16 +122,16 @@ Sei präzise, aber vollständig. Notiere alle konkreten Informationen, die der A
           type: "object" as const,
           properties: {
             callerName: { type: "string" as const, description: "Name des Anrufers" },
-            callerPhone: { type: "string" as const, description: "Telefonnummer des Anrufers" },
-            callerEmail: { type: "string" as const, description: "E-Mail-Adresse des Anrufers" },
-            reason: { type: "string" as const, description: "Grund des Anrufs" },
+            callerPhone: { type: "string" as const, description: "Telefonnummer des Anrufers (nur wenn explizit im Gespräch genannt)" },
+            callerEmail: { type: "string" as const, description: "E-Mail-Adresse des Anrufers (nur wenn explizit genannt)" },
+            reason: { type: "string" as const, description: "Konkreter Grund des Anrufs (z.B. 'Kontrolle', 'Zahnreinigung', 'Beratung', NICHT nur 'Termin')" },
             appointmentRequested: {
               type: "boolean" as const,
-              description: "Wurde ein Termin angefragt?",
+              description: "Wurde ein Termin angefragt oder vereinbart?",
             },
             appointmentDate: {
               type: "string" as const,
-              description: "Gewünschtes Datum/Uhrzeit",
+              description: "Gewünschtes Datum und Uhrzeit im Format DD.MM.YYYY HH:mm. Relative Angaben wie 'morgen' müssen in ein konkretes Datum aufgelöst werden.",
             },
             callbackRequested: {
               type: "boolean" as const,
@@ -135,7 +141,7 @@ Sei präzise, aber vollständig. Notiere alle konkreten Informationen, die der A
               type: "string" as const,
               description: "Dringlichkeit: niedrig, mittel, hoch",
             },
-            notes: { type: "string" as const, description: "Zusätzliche Notizen" },
+            notes: { type: "string" as const, description: "Zusätzliche Notizen oder Hinweise aus dem Gespräch" },
           },
         },
       },
