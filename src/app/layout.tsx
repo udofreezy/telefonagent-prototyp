@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Telefonagent - KI-Telefonassistent",
+  title: "DieZahnärzte.ch – KI-Telefonassistent",
   description:
-    "Konfigurieren Sie in 2 Minuten einen personalisierten KI-Telefonagenten für Ihr Unternehmen.",
+    "Intelligenter Telefonassistent für Die Zahnärzte – Termine, Anfragen und Anrufe automatisch verwalten.",
 };
 
 export default function RootLayout({
