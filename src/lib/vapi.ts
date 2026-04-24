@@ -81,8 +81,8 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
       ],
     },
     model: {
-      provider: "openai" as const,
-      model: "gpt-4o-mini" as const,
+      provider: "anthropic" as const,
+      model: "claude-sonnet-4-5-20250929" as const,
       messages: [
         {
           role: "system" as const,
