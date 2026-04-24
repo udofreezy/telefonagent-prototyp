@@ -82,7 +82,7 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
     },
     model: {
       provider: "anthropic" as const,
-      model: "claude-sonnet-4-5-20250929" as const,
+      model: "claude-haiku-4-5-20251001" as const,
       messages: [
         {
           role: "system" as const,
@@ -90,7 +90,7 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
         },
       ],
       temperature: 0.6,
-      maxTokens: 200,
+      maxTokens: 150,
     },
     voice: {
       provider: "cartesia" as const,
