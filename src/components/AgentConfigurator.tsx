@@ -34,17 +34,13 @@ import {
 } from "lucide-react";
 
 const VOICE_OPTIONS = [
-  { id: "XrExE9yKIg1WjnnlVkGX", label: "Matilda", desc: "Weiblich, warm", lang: "DE", recommended: true },
-  { id: "XB0fDUnXU5powFXDhCwa", label: "Charlotte", desc: "Weiblich, natürlich", lang: "DE" },
-  { id: "jsCqWAovK2LkecY7zXl4", label: "Freya", desc: "Weiblich, angenehm", lang: "DE" },
-  { id: "pFZP5JQG7iQjIQuC4Bku", label: "Lily", desc: "Weiblich, freundlich", lang: "DE" },
-  { id: "nPczCjzI2devNBz1zQrb", label: "Brian", desc: "Männlich, ruhig", lang: "DE" },
-  { id: "onwK4e9ZLuTAKqWW03F9", label: "Daniel", desc: "Männlich, seriös", lang: "DE" },
-  { id: "EXAVITQu4vr4xnSDxMaL", label: "Sarah", desc: "Weiblich, warm", lang: "EN" },
-  { id: "21m00Tcm4TlvDq8ikWAM", label: "Rachel", desc: "Weiblich, professionell", lang: "EN" },
-  { id: "ErXwobaYiN019PkySvjV", label: "Antoni", desc: "Männlich, freundlich", lang: "EN" },
-  { id: "VR6AewLTigWG4xSOukaG", label: "Arnold", desc: "Männlich, klar", lang: "EN" },
-  { id: "pNInz6obpgDQGcFmaJgB", label: "Adam", desc: "Männlich, tief", lang: "EN" },
+  { id: "3f4ade23-6eb4-4279-ab05-6a144947c4d5", label: "German Conversational Woman", desc: "Weiblich, freundlich", lang: "DE", recommended: true },
+  { id: "b9de4a89-2257-424b-94c2-db18ba68c81a", label: "German Woman", desc: "Weiblich, klar", lang: "DE" },
+  { id: "119e03e4-0705-43c9-b3ac-a658ce2b6639", label: "German Reporter Woman", desc: "Weiblich, professionell", lang: "DE" },
+  { id: "384b625b-da5d-49e8-a76d-a2855d4f31eb", label: "German Conversation Man", desc: "Männlich, seriös", lang: "DE" },
+  { id: "fb9fcab6-aba5-49ec-8d7e-3f1100296dde", label: "Friendly German Man", desc: "Männlich, freundlich", lang: "DE" },
+  { id: "3f6e78a8-5283-42aa-b5e7-af82e8bb310c", label: "German Reporter Man", desc: "Männlich, professionell", lang: "DE" },
+  { id: "db229dfe-f5de-4be4-91fd-7b077c158578", label: "German Storyteller Man", desc: "Männlich, erzählerisch", lang: "DE" },
 ];
 
 const STEPS = [

@@ -72,8 +72,8 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
       ],
     },
     model: {
-      provider: "anthropic" as const,
-      model: "claude-sonnet-4-5-20250929" as const,
+      provider: "openai" as const,
+      model: "gpt-4o-mini" as const,
       messages: [
         {
           role: "system" as const,
@@ -84,18 +84,10 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
       maxTokens: 200,
     },
     voice: {
-      provider: "11labs" as const,
-      voiceId: config.voiceId || "XrExE9yKIg1WjnnlVkGX" as const, // Matilda - multilingual, DE
-      model: "eleven_flash_v2_5" as const,
-      language: "de",
-      stability: 0.35,
-      similarityBoost: 0.8,
-      style: 0,
-      useSpeakerBoost: true,
-      speed: 1.0,
-      optimizeStreamingLatency: 4,
-      enableSsmlParsing: false,
-      fillerInjectionEnabled: true,
+      provider: "cartesia" as const,
+      voiceId: config.voiceId || "3f4ade23-6eb4-4279-ab05-6a144947c4d5" as const, // German Conversational Woman
+      model: "sonic-3" as const,
+      language: "de" as const,
     },
     backgroundSound: "off" as const,
     backchannelingEnabled: true,
