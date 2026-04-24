@@ -98,7 +98,7 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
       model: "sonic-3" as const,
       language: "de" as const,
       generationConfig: {
-        speed: 1.15,
+        speed: 1.05,
       },
     },
     backgroundSound: "off" as const,
