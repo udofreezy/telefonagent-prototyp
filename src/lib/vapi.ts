@@ -2,6 +2,15 @@ import { VapiClient } from "@vapi-ai/server-sdk";
 import { AgentConfig } from "@/types";
 import { buildSystemPrompt, buildGreeting, getTemplate } from "./templates";
 
+const DEFAULT_CARTESIA_VOICE_ID = "3f4ade23-6eb4-4279-ab05-6a144947c4d5"; // German Conversational Woman
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function getCartesiaVoiceId(voiceId?: string): string {
+  if (voiceId && UUID_REGEX.test(voiceId)) return voiceId;
+  return DEFAULT_CARTESIA_VOICE_ID;
+}
+
 function getClient() {
   const token = process.env.VAPI_API_KEY;
   if (!token) throw new Error("VAPI_API_KEY is not set");
@@ -85,7 +94,7 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
     },
     voice: {
       provider: "cartesia" as const,
-      voiceId: config.voiceId || "3f4ade23-6eb4-4279-ab05-6a144947c4d5" as const, // German Conversational Woman
+      voiceId: getCartesiaVoiceId(config.voiceId),
       model: "sonic-3" as const,
       language: "de" as const,
     },

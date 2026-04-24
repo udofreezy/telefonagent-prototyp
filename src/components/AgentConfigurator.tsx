@@ -75,6 +75,11 @@ export function AgentConfigurator() {
         if (res.ok) {
           const data = await res.json();
           if (data && data.businessName) {
+            // Migrate old ElevenLabs voiceId to Cartesia default
+            const knownIds = VOICE_OPTIONS.map(v => v.id);
+            if (data.voiceId && !knownIds.includes(data.voiceId)) {
+              data.voiceId = VOICE_OPTIONS[0].id;
+            }
             setConfig(data);
             setCurrentStep(5);
           }
