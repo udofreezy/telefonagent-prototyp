@@ -97,9 +97,6 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
       voiceId: getCartesiaVoiceId(config.voiceId),
       model: "sonic-3" as const,
       language: "de" as const,
-      experimentalControls: {
-        emotion: "positivity:high" as const,
-      },
       generationConfig: {
         speed: 1.05,
       },
