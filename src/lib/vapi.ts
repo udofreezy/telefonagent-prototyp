@@ -38,7 +38,7 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
     transcriber: {
       provider: "deepgram" as const,
       language: "de" as const,
-      model: "nova-2" as const,
+      model: "nova-3" as const,
       smartFormat: true,
       numerals: true,
       endpointing: 200,
