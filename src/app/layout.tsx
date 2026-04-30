@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DieZahnärzte.ch – KI-Telefonassistent",
+  title: "Aesthetic Center Basel – KI-Telefonassistent",
   description:
-    "Intelligenter Telefonassistent für Die Zahnärzte – Termine, Anfragen und Anrufe automatisch verwalten.",
+    "Intelligenter Telefonassistent für Aesthetic Center Basel – Termine, Anfragen und Anrufe automatisch verwalten.",
 };
 
 export default function RootLayout({

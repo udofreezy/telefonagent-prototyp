@@ -91,7 +91,7 @@ function urgencyBadge(urgency?: string) {
   }
   if (u.includes("mittel") || u === "medium") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-md bg-[#1f90b2]/10 px-2 py-0.5 text-xs font-medium text-[#1f90b2]">
+      <span className="inline-flex items-center gap-1 rounded-md bg-[#c9a96e]/10 px-2 py-0.5 text-xs font-medium text-[#c9a96e]">
         Mittel
       </span>
     );
@@ -113,7 +113,7 @@ function CallItem({ call, onBookCalendar, bookingId }: { call: CallLog; onBookCa
     <div
       className={`rounded-xl border transition-all duration-200 card-hover ${
         expanded
-          ? "border-[#1f90b2]/20 bg-card shadow-lg"
+          ? "border-[#c9a96e]/20 bg-card shadow-lg"
           : "border-border/50 bg-card hover:border-border"
       }`}
     >
@@ -159,7 +159,7 @@ function CallItem({ call, onBookCalendar, bookingId }: { call: CallLog; onBookCa
           {urgencyBadge(data?.urgency)}
           {statusBadge(call.status)}
           <div className={`ml-1 flex h-6 w-6 items-center justify-center rounded-md transition-colors ${
-            expanded ? "bg-[#1f90b2]/10 text-[#1f90b2]" : "text-muted-foreground"
+            expanded ? "bg-[#c9a96e]/10 text-[#c9a96e]" : "text-muted-foreground"
           }`}>
             {expanded ? (
               <ChevronUp className="h-4 w-4" />
@@ -204,7 +204,7 @@ function CallItem({ call, onBookCalendar, bookingId }: { call: CallLog; onBookCa
               <div className="grid gap-3 sm:grid-cols-2">
                 {data.callerName && (
                   <div className="flex items-start gap-2.5">
-                    <User className="mt-0.5 h-4 w-4 shrink-0 text-[#1f90b2]" />
+                    <User className="mt-0.5 h-4 w-4 shrink-0 text-[#c9a96e]" />
                     <div className="min-w-0">
                       <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Anrufer</p>
                       <p className="truncate text-sm font-medium">{data.callerName}</p>
@@ -213,7 +213,7 @@ function CallItem({ call, onBookCalendar, bookingId }: { call: CallLog; onBookCa
                 )}
                 {data.callerPhone && (
                   <div className="flex items-start gap-2.5">
-                    <Phone className="mt-0.5 h-4 w-4 shrink-0 text-[#1f90b2]" />
+                    <Phone className="mt-0.5 h-4 w-4 shrink-0 text-[#c9a96e]" />
                     <div className="min-w-0">
                       <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Telefon</p>
                       <p className="truncate text-sm font-medium">{data.callerPhone}</p>
@@ -222,10 +222,10 @@ function CallItem({ call, onBookCalendar, bookingId }: { call: CallLog; onBookCa
                 )}
                 {data.callerEmail && (
                   <div className="flex items-start gap-2.5">
-                    <Mail className="mt-0.5 h-4 w-4 shrink-0 text-[#1f90b2]" />
+                    <Mail className="mt-0.5 h-4 w-4 shrink-0 text-[#c9a96e]" />
                     <div className="min-w-0">
                       <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">E-Mail</p>
-                      <a href={`mailto:${data.callerEmail}`} className="truncate text-sm font-medium hover:text-[#1f90b2] transition-colors">
+                      <a href={`mailto:${data.callerEmail}`} className="truncate text-sm font-medium hover:text-[#c9a96e] transition-colors">
                         {data.callerEmail}
                       </a>
                     </div>
@@ -233,7 +233,7 @@ function CallItem({ call, onBookCalendar, bookingId }: { call: CallLog; onBookCa
                 )}
                 {data.reason && (
                   <div className="flex items-start gap-2.5 sm:col-span-2">
-                    <FileText className="mt-0.5 h-4 w-4 shrink-0 text-[#1f90b2]" />
+                    <FileText className="mt-0.5 h-4 w-4 shrink-0 text-[#c9a96e]" />
                     <div className="min-w-0">
                       <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Anliegen</p>
                       <p className="text-sm">{data.reason}</p>
@@ -428,8 +428,8 @@ export function CallHistory() {
         <div className="grid grid-cols-3 gap-4">
           <div className="rounded-2xl border border-border/50 bg-card p-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1f90b2]/10">
-                <PhoneIncoming className="h-5 w-5 text-[#1f90b2]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#c9a96e]/10">
+                <PhoneIncoming className="h-5 w-5 text-[#c9a96e]" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{totalCalls}</p>
@@ -501,8 +501,8 @@ export function CallHistory() {
       {loading && calls.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20">
           <div className="relative">
-            <div className="h-12 w-12 rounded-full border-2 border-[#1f90b2]/20" />
-            <div className="absolute inset-0 h-12 w-12 animate-spin rounded-full border-2 border-transparent border-t-[#1f90b2]" />
+            <div className="h-12 w-12 rounded-full border-2 border-[#c9a96e]/20" />
+            <div className="absolute inset-0 h-12 w-12 animate-spin rounded-full border-2 border-transparent border-t-[#c9a96e]" />
           </div>
           <p className="mt-4 text-sm text-muted-foreground">Anrufe werden geladen...</p>
         </div>

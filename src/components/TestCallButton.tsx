@@ -39,9 +39,9 @@ export function TestCallButton({ phoneNumber, assistantId }: Props) {
   };
 
   return (
-    <div className="glow-teal rounded-2xl border border-[#1f90b2]/20 bg-gradient-to-b from-[#1f90b2]/5 to-transparent p-6">
+    <div className="glow-teal rounded-2xl border border-[#c9a96e]/20 bg-gradient-to-b from-[#c9a96e]/5 to-transparent p-6">
       <div className="flex items-center gap-2 mb-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1f90b2] text-white">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c9a96e] text-white">
           <PhoneCall className="h-4 w-4" />
         </div>
         <h3 className="text-sm font-semibold">Jetzt testen</h3>
@@ -67,7 +67,7 @@ export function TestCallButton({ phoneNumber, assistantId }: Props) {
           </Button>
           <Button
             size="sm"
-            className="rounded-xl bg-[#1f90b2] text-white hover:bg-[#17798f] border-0 text-xs"
+            className="rounded-xl bg-[#c9a96e] text-white hover:bg-[#b8955a] border-0 text-xs"
             render={<a href={`tel:${phoneNumber}`} />}
           >
             <Phone className="mr-1.5 h-3 w-3" />

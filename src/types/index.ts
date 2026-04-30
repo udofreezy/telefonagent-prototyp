@@ -1,4 +1,5 @@
 export type BusinessType =
+  | "aesthetik"
   | "physiotherapie"
   | "zahnarzt"
   | "restaurant"

@@ -97,7 +97,7 @@ export function LiveCallPanel() {
         <div className="space-y-2 text-sm">
           {data?.callerName && (
             <div className="flex items-center gap-2">
-              <User className="h-3.5 w-3.5 shrink-0 text-[#1f90b2]" />
+              <User className="h-3.5 w-3.5 shrink-0 text-[#c9a96e]" />
               <span className="font-medium">{data.callerName}</span>
               {call.phoneNumber && (
                 <span className="text-xs text-muted-foreground">({call.phoneNumber})</span>
@@ -106,7 +106,7 @@ export function LiveCallPanel() {
           )}
           {!data?.callerName && call.phoneNumber && (
             <div className="flex items-center gap-2">
-              <User className="h-3.5 w-3.5 shrink-0 text-[#1f90b2]" />
+              <User className="h-3.5 w-3.5 shrink-0 text-[#c9a96e]" />
               <span className="font-medium">{call.phoneNumber}</span>
             </div>
           )}
@@ -132,8 +132,8 @@ export function LiveCallPanel() {
           )}
           {data?.urgency && data.urgency.toLowerCase() !== "niedrig" && (
             <div className="flex items-center gap-2">
-              <AlertCircle className="h-3.5 w-3.5 shrink-0 text-[#1f90b2]" />
-              <span className="font-medium text-[#1f90b2]">Dringlichkeit: {data.urgency}</span>
+              <AlertCircle className="h-3.5 w-3.5 shrink-0 text-[#c9a96e]" />
+              <span className="font-medium text-[#c9a96e]">Dringlichkeit: {data.urgency}</span>
             </div>
           )}
           {call.duration && (

@@ -164,7 +164,7 @@ function AppointmentCard({
           <div className="ml-12 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
             {/* Gewünschter Termin */}
             <div className="flex items-start gap-2 rounded-lg bg-muted/50 px-3 py-2">
-              <Clock className="h-4 w-4 text-[#1f90b2] mt-0.5 shrink-0" />
+              <Clock className="h-4 w-4 text-[#c9a96e] mt-0.5 shrink-0" />
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Gewünschter Termin</p>
                 <p className="font-medium">
@@ -175,7 +175,7 @@ function AppointmentCard({
 
             {/* Anliegen */}
             <div className="flex items-start gap-2 rounded-lg bg-muted/50 px-3 py-2">
-              <MessageSquare className="h-4 w-4 text-[#1f90b2] mt-0.5 shrink-0" />
+              <MessageSquare className="h-4 w-4 text-[#c9a96e] mt-0.5 shrink-0" />
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Anliegen</p>
                 <p className="font-medium">
@@ -190,7 +190,7 @@ function AppointmentCard({
                 <Phone className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">Telefon</p>
-                  <a href={`tel:${appointment.callerPhone}`} className="font-medium hover:text-[#1f90b2] transition-colors">
+                  <a href={`tel:${appointment.callerPhone}`} className="font-medium hover:text-[#c9a96e] transition-colors">
                     {appointment.callerPhone}
                   </a>
                 </div>
@@ -203,7 +203,7 @@ function AppointmentCard({
                 <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">E-Mail</p>
-                  <a href={`mailto:${appointment.callerEmail}`} className="font-medium hover:text-[#1f90b2] transition-colors">
+                  <a href={`mailto:${appointment.callerEmail}`} className="font-medium hover:text-[#c9a96e] transition-colors">
                     {appointment.callerEmail}
                   </a>
                 </div>
@@ -364,8 +364,8 @@ export function AppointmentList() {
           </div>
           <div className="rounded-2xl border border-border/50 bg-card p-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1f90b2]/10">
-                <Calendar className="h-5 w-5 text-[#1f90b2]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#c9a96e]/10">
+                <Calendar className="h-5 w-5 text-[#c9a96e]" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{visible.length}</p>
@@ -402,8 +402,8 @@ export function AppointmentList() {
       {loading && appointments.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20">
           <div className="relative">
-            <div className="h-12 w-12 rounded-full border-2 border-[#1f90b2]/20" />
-            <div className="absolute inset-0 h-12 w-12 animate-spin rounded-full border-2 border-transparent border-t-[#1f90b2]" />
+            <div className="h-12 w-12 rounded-full border-2 border-[#c9a96e]/20" />
+            <div className="absolute inset-0 h-12 w-12 animate-spin rounded-full border-2 border-transparent border-t-[#c9a96e]" />
           </div>
           <p className="mt-4 text-sm text-muted-foreground">
             Termine werden geladen...
