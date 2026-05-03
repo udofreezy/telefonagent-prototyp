@@ -137,7 +137,7 @@ function generateICS(data: CalendarEventData): string {
   const dateStr = data.appointmentDate || fromSummary.date || "";
   const callerPhone = data.callerPhone || fromSummary.phone;
 
-  const uid = `${data.id}@clickfabrik.ch`;
+  const uid = `${data.id}-${Date.now()}@clickfabrik.ch`;
   const summary = `Termin: ${callerName} – ${reason}`;
 
   const fmt = (d: Date) =>
@@ -224,7 +224,7 @@ export async function createCalendarEvent(data: CalendarEventData): Promise<void
   }
 
   const iCalString = generateICS(data);
-  const filename = `${data.id}.ics`;
+  const filename = `${data.id}-${Date.now()}.ics`;
 
   const result = await client.createCalendarObject({
     calendar,
