@@ -8,7 +8,7 @@ export default function HomePage() {
           <span className="gradient-text">Telefonassistent konfigurieren</span>
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Konfigurieren Sie den KI-Telefonassistenten für Aesthetic Center Basel.
+          Konfigurieren Sie den KI-Telefonassistenten für Die Zahnärzte Basel.
         </p>
       </div>
       <AgentConfigurator />

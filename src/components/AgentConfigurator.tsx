@@ -196,8 +196,8 @@ export function AgentConfigurator() {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <div className="relative">
-          <div className="h-12 w-12 rounded-full border-2 border-[#c9a96e]/20" />
-          <div className="absolute inset-0 h-12 w-12 animate-spin rounded-full border-2 border-transparent border-t-[#c9a96e]" />
+          <div className="h-12 w-12 rounded-full border-2 border-[#0693e3]/20" />
+          <div className="absolute inset-0 h-12 w-12 animate-spin rounded-full border-2 border-transparent border-t-[#0693e3]" />
         </div>
         <p className="mt-4 text-sm text-muted-foreground">Agent wird geladen...</p>
       </div>
@@ -228,9 +228,9 @@ export function AgentConfigurator() {
                   <div
                     className={`flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-300 ${
                       step.id === currentStep
-                        ? "bg-[#c9a96e] text-white shadow-lg shadow-[#c9a96e]/30"
+                        ? "bg-[#0693e3] text-white shadow-lg shadow-[#0693e3]/30"
                         : step.id < currentStep
-                        ? "bg-[#c9a96e]/10 text-[#c9a96e]"
+                        ? "bg-[#0693e3]/10 text-[#0693e3]"
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
@@ -255,7 +255,7 @@ export function AgentConfigurator() {
                   <div className="mx-2 hidden h-[2px] w-8 sm:block md:w-12 lg:w-16">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
-                        step.id < currentStep ? "bg-[#c9a96e]" : "bg-border"
+                        step.id < currentStep ? "bg-[#0693e3]" : "bg-border"
                       }`}
                     />
                   </div>
@@ -422,13 +422,13 @@ export function AgentConfigurator() {
                     onClick={() => setConfig((prev) => ({ ...prev, voiceId: voice.id }))}
                     className={`group relative flex items-center gap-3 rounded-xl border p-4 text-left transition-all duration-200 ${
                       config.voiceId === voice.id
-                        ? "border-[#c9a96e] bg-[#c9a96e]/5 shadow-md shadow-[#c9a96e]/10"
+                        ? "border-[#0693e3] bg-[#0693e3]/5 shadow-md shadow-[#0693e3]/10"
                         : "border-border/50 bg-background/30 hover:border-border hover:bg-background/50"
                     }`}
                   >
                     <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${
                       config.voiceId === voice.id
-                        ? "bg-[#c9a96e] text-white"
+                        ? "bg-[#0693e3] text-white"
                         : "bg-muted text-muted-foreground"
                     }`}>
                       <Volume2 className="h-4 w-4" />
@@ -444,7 +444,7 @@ export function AgentConfigurator() {
                           {voice.lang}
                         </span>
                         {voice.recommended && (
-                          <span className="rounded-md bg-[#c9a96e]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#c9a96e]">
+                          <span className="rounded-md bg-[#0693e3]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#0693e3]">
                             Empfohlen
                           </span>
                         )}
@@ -452,7 +452,7 @@ export function AgentConfigurator() {
                       <p className="text-xs text-muted-foreground">{voice.desc}</p>
                     </div>
                     {config.voiceId === voice.id && (
-                      <CheckCircle2 className="h-5 w-5 shrink-0 text-[#c9a96e]" />
+                      <CheckCircle2 className="h-5 w-5 shrink-0 text-[#0693e3]" />
                     )}
                   </button>
                 ))}
@@ -531,7 +531,7 @@ export function AgentConfigurator() {
                 <Button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="flex-1 h-12 rounded-xl bg-gradient-to-r from-[#c9a96e] to-[#d4bf94] text-white font-semibold shadow-lg shadow-[#c9a96e]/25 hover:shadow-[#c9a96e]/40 hover:brightness-110 transition-all border-0"
+                  className="flex-1 h-12 rounded-xl bg-gradient-to-r from-[#0693e3] to-[#38b2f5] text-white font-semibold shadow-lg shadow-[#0693e3]/25 hover:shadow-[#0693e3]/40 hover:brightness-110 transition-all border-0"
                   size="lg"
                 >
                   {loading ? (
@@ -577,9 +577,9 @@ export function AgentConfigurator() {
                     key={step.id}
                     className={`h-1.5 rounded-full transition-all duration-300 ${
                       step.id === currentStep
-                        ? "w-6 bg-[#c9a96e]"
+                        ? "w-6 bg-[#0693e3]"
                         : step.id < currentStep
-                        ? "w-1.5 bg-[#c9a96e]/50"
+                        ? "w-1.5 bg-[#0693e3]/50"
                         : "w-1.5 bg-border"
                     }`}
                   />
@@ -588,7 +588,7 @@ export function AgentConfigurator() {
               <Button
                 onClick={nextStep}
                 disabled={!canProceed()}
-                className="rounded-xl bg-[#c9a96e] text-white hover:bg-[#b8955a] border-0"
+                className="rounded-xl bg-[#0693e3] text-white hover:bg-[#057cc0] border-0"
               >
                 Weiter
                 <ChevronRight className="ml-1 h-4 w-4" />
@@ -619,7 +619,7 @@ export function AgentConfigurator() {
               { n: "5", text: "Agent aktivieren & Nummer anrufen" },
             ].map((item) => (
               <div key={item.n} className="flex items-center gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#c9a96e]/10 text-xs font-bold text-[#c9a96e]">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#0693e3]/10 text-xs font-bold text-[#0693e3]">
                   {item.n}
                 </span>
                 <p className="text-sm text-muted-foreground">{item.text}</p>
