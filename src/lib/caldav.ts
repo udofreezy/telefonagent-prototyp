@@ -221,6 +221,8 @@ export async function createCalendarEvent(data: CalendarEventData): Promise<void
     throw new Error("CalDAV-Konfiguration fehlt (CALDAV_URL, CALDAV_USERNAME, CALDAV_PASSWORD).");
   }
 
+  console.log(`[CalDAV] Connecting to ${serverUrl} as ${username}`);
+
   const client = new DAVClient({
     serverUrl,
     credentials: { username, password },
@@ -229,14 +231,22 @@ export async function createCalendarEvent(data: CalendarEventData): Promise<void
   });
 
   await client.login();
+  console.log(`[CalDAV] Login successful`);
 
   let calendar;
 
   if (calendarUrl) {
     const calendars = await client.fetchCalendars();
+    console.log(`[CalDAV] Found ${calendars.length} calendars:`, calendars.map(c => ({ url: c.url, displayName: c.displayName })));
     calendar = calendars.find((c) => c.url === calendarUrl || c.url.includes(calendarUrl));
     if (!calendar) {
-      calendar = { url: calendarUrl };
+      // Append trailing slash if missing
+      const urlWithSlash = calendarUrl.endsWith("/") ? calendarUrl : calendarUrl + "/";
+      calendar = calendars.find((c) => c.url === urlWithSlash || c.url.includes(urlWithSlash));
+    }
+    if (!calendar) {
+      console.warn(`[CalDAV] Calendar URL "${calendarUrl}" not found in list, using first calendar as fallback`);
+      calendar = calendars[0] || { url: calendarUrl.endsWith("/") ? calendarUrl : calendarUrl + "/" };
     }
   } else {
     const calendars = await client.fetchCalendars();
@@ -246,8 +256,13 @@ export async function createCalendarEvent(data: CalendarEventData): Promise<void
     calendar = calendars[0];
   }
 
+  console.log(`[CalDAV] Using calendar: ${calendar.url} (${(calendar as Record<string, unknown>).displayName || "unnamed"})`);
+
   const iCalString = generateICS(data);
   const filename = `${data.id}-${Date.now()}.ics`;
+
+  console.log(`[CalDAV] Creating object: filename="${filename}", calendar="${calendar.url}"`);
+  console.log(`[CalDAV] ICS content:\n${iCalString}`);
 
   const result = await client.createCalendarObject({
     calendar,
@@ -255,7 +270,11 @@ export async function createCalendarEvent(data: CalendarEventData): Promise<void
     iCalString,
   });
 
+  console.log(`[CalDAV] Result: ok=${result.ok}, status=${result.status}, statusText="${result.statusText}"`);
+
   if (!result.ok) {
     throw new Error(`CalDAV-Fehler: ${result.status} ${result.statusText}`);
   }
+
+  console.log(`[CalDAV] Event erfolgreich erstellt!`);
 }
