@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createCalendarEvent } from "@/lib/caldav";
-import { getAppointments } from "@/lib/store";
+import { getAppointments, getCallLogs } from "@/lib/store";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,11 +19,20 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // Try to get summary from the related call log as fallback for date extraction
+      let callSummary: string | undefined;
+      if (!appointment.appointmentDate) {
+        const callLogs = await getCallLogs();
+        const relatedCall = callLogs.find((c) => c.id === appointment.callId);
+        callSummary = relatedCall?.summary;
+      }
+
       console.log(`[Calendar API] From appointment:`, JSON.stringify({
         appointmentId,
         callerName: appointment.callerName,
         reason: appointment.reason,
         appointmentDate: appointment.appointmentDate,
+        hasFallbackSummary: !!callSummary,
       }));
 
       await createCalendarEvent({
@@ -34,6 +43,7 @@ export async function POST(request: NextRequest) {
         reason: appointment.reason,
         appointmentDate: appointment.appointmentDate,
         notes: appointment.notes,
+        summary: callSummary,
       });
 
       return NextResponse.json({ ok: true });

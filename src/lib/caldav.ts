@@ -152,7 +152,6 @@ function generateICS(data: CalendarEventData): string {
   const callerPhone = data.callerPhone || fromSummary.phone;
 
   const uid = `${data.id}-${Date.now()}@clickfabrik.ch`;
-  const summary = `Termin: ${callerName} – ${reason}`;
 
   const fmt = (d: Date) =>
     d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
@@ -161,27 +160,37 @@ function generateICS(data: CalendarEventData): string {
   let dtend: string;
 
   const parsedDate = dateStr ? parseDate(dateStr) : null;
+  let dateWarning = false;
   if (parsedDate) {
     dtstart = fmt(parsedDate);
     dtend = fmt(new Date(parsedDate.getTime() + 60 * 60 * 1000));
   } else {
-    // Kein gültiges Datum vorhanden – Fehler werfen statt aktuelle Zeit zu verwenden
-    throw new Error(
-      `Kein gültiges Termindatum vorhanden. Bitte stellen Sie sicher, dass ein konkretes Datum im Termin hinterlegt ist. (Erhaltener Wert: "${dateStr || "leer"}")`
-    );
+    // Kein gültiges Datum – Fallback auf morgen 9:00 mit Warnung im Titel
+    console.warn(`[CalDAV] WARNUNG: Datum konnte nicht geparst werden. Rohwert: "${dateStr || "leer"}". Verwende morgen 9:00 als Fallback.`);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(9, 0, 0, 0);
+    dtstart = fmt(tomorrow);
+    dtend = fmt(new Date(tomorrow.getTime() + 60 * 60 * 1000));
+    dateWarning = true;
   }
+
+  const summary = dateWarning
+    ? `[DATUM PRÜFEN] Termin: ${callerName} – ${reason}`
+    : `Termin: ${callerName} – ${reason}`;
 
   const descriptionParts = [
     `Kunde: ${callerName}`,
     callerPhone && `Telefon: ${callerPhone}`,
     data.callerEmail && `E-Mail: ${data.callerEmail}`,
     `Anliegen: ${reason}`,
+    dateWarning && `ACHTUNG: Datum konnte nicht automatisch erkannt werden. Bitte manuell prüfen! Rohwert: "${dateStr || "nicht vorhanden"}"`,
     data.notes && `Notizen: ${data.notes}`,
   ].filter(Boolean);
 
   const description = descriptionParts.join("\\n");
 
-  console.log(`[CalDAV] Creating event: name="${callerName}", reason="${reason}", dateRaw="${dateStr}", parsed=${parsedDate?.toISOString() || "PARSE FAILED"}, appointmentDate="${data.appointmentDate || ""}", summaryDate="${fromSummary.date || ""}"`);
+  console.log(`[CalDAV] Creating event: name="${callerName}", reason="${reason}", dateRaw="${dateStr}", parsed=${parsedDate?.toISOString() || "PARSE FAILED"}, appointmentDate="${data.appointmentDate || ""}", summaryDate="${fromSummary.date || ""}", warning=${dateWarning}`);
 
   return [
     "BEGIN:VCALENDAR",
