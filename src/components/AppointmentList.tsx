@@ -166,9 +166,9 @@ function AppointmentCard({
             <div className="flex items-start gap-2 rounded-lg bg-muted/50 px-3 py-2">
               <Clock className="h-4 w-4 text-[#0693e3] mt-0.5 shrink-0" />
               <div>
-                <p className="text-xs font-medium text-muted-foreground">Gewünschter Termin</p>
-                <p className="font-medium">
-                  {appointment.appointmentDate || "Nicht angegeben"}
+                <p className="text-xs font-medium text-muted-foreground">Erkannter Termin</p>
+                <p className={`font-bold ${appointment.appointmentDate ? "text-emerald-400" : "text-red-400"}`}>
+                  {appointment.appointmentDate || "Kein Datum erkannt!"}
                 </p>
               </div>
             </div>

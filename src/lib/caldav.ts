@@ -61,7 +61,20 @@ function parseDate(dateStr: string): Date | null {
     }
   }
 
-  // 6) "Donnerstag, 24. April" without time → default 9:00
+  // 5b) "4. Mai, 16 Uhr" (ohne Minuten, mit "Uhr")
+  const fmt2b = s.match(/(\d{1,2})\.\s*([A-Za-zäöü]+)\.?\s*(\d{4})?\s*,?\s*(?:um\s+)?(\d{1,2})\s*Uhr/i);
+  if (fmt2b) {
+    const day = Number(fmt2b[1]);
+    const monthName = fmt2b[2].toLowerCase();
+    const month = MONTH_MAP[monthName];
+    const year = fmt2b[3] ? Number(fmt2b[3]) : new Date().getFullYear();
+    const hour = Number(fmt2b[4]);
+    if (month !== undefined) {
+      return new Date(year, month, day, hour, 0);
+    }
+  }
+
+  // 6) "Donnerstag, 24. April" with or without time
   const fmt3 = s.match(/(\d{1,2})\.\s*([A-Za-zäöü]+)\.?\s*(\d{4})?/i);
   if (fmt3) {
     const day = Number(fmt3[1]);
@@ -69,9 +82,10 @@ function parseDate(dateStr: string): Date | null {
     const month = MONTH_MAP[monthName];
     const year = fmt3[3] ? Number(fmt3[3]) : new Date().getFullYear();
     if (month !== undefined) {
-      // Extract time if present elsewhere in string
+      // Extract time: "HH:mm" or "HH Uhr"
       const timeMatch = s.match(/(\d{1,2}):(\d{2})/);
-      const hour = timeMatch ? Number(timeMatch[1]) : 9;
+      const timeUhrMatch = s.match(/(\d{1,2})\s*Uhr/i);
+      const hour = timeMatch ? Number(timeMatch[1]) : (timeUhrMatch ? Number(timeUhrMatch[1]) : 9);
       const minute = timeMatch ? Number(timeMatch[2]) : 0;
       return new Date(year, month, day, hour, minute);
     }
@@ -167,7 +181,7 @@ function generateICS(data: CalendarEventData): string {
 
   const description = descriptionParts.join("\\n");
 
-  console.log(`[CalDAV] Creating event: name="${callerName}", reason="${reason}", date="${dateStr}", parsed=${parsedDate?.toISOString() || "null"}`);
+  console.log(`[CalDAV] Creating event: name="${callerName}", reason="${reason}", dateRaw="${dateStr}", parsed=${parsedDate?.toISOString() || "PARSE FAILED"}, appointmentDate="${data.appointmentDate || ""}", summaryDate="${fromSummary.date || ""}"`);
 
   return [
     "BEGIN:VCALENDAR",

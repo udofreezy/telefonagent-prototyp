@@ -240,13 +240,13 @@ function CallItem({ call, onBookCalendar, bookingId }: { call: CallLog; onBookCa
                     </div>
                   </div>
                 )}
-                {data.appointmentRequested && (
+                {(data.appointmentRequested || data.appointmentDate) && (
                   <div className="flex items-start gap-2.5">
                     <CalendarCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
                     <div className="min-w-0">
-                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Termin gewünscht</p>
-                      <p className="text-sm font-medium">
-                        {data.appointmentDate || "Ja (Details folgen)"}
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Erkannter Termin</p>
+                      <p className="text-sm font-bold text-emerald-400">
+                        {data.appointmentDate || "Ja (kein Datum erkannt)"}
                       </p>
                     </div>
                   </div>
