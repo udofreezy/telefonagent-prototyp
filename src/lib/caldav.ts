@@ -21,13 +21,33 @@ function parseDate(dateStr: string): Date | null {
   if (!dateStr) return null;
   const s = dateStr.trim();
 
-  // 1) DD.MM.YYYY HH:mm
+  // 1) DD.MM.YYYY HH:mm (z.B. "04.05.2026 16:00")
   const fmt1 = s.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})\s+(\d{1,2}):(\d{2})/);
   if (fmt1) {
     return new Date(Number(fmt1[3]), Number(fmt1[2]) - 1, Number(fmt1[1]), Number(fmt1[4]), Number(fmt1[5]));
   }
 
-  // 2) "24. April, 13:00" or "24. April 2026, 13:00 Uhr" (with optional weekday prefix)
+  // 2) DD.MM.YYYY ohne Zeit (z.B. "04.05.2026") → default 9:00
+  const fmt1b = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if (fmt1b) {
+    return new Date(Number(fmt1b[3]), Number(fmt1b[2]) - 1, Number(fmt1b[1]), 9, 0);
+  }
+
+  // 3) DD.MM. HH:mm ohne Jahr (z.B. "4.5. 16:00" oder "04.05. um 16:00")
+  const fmt1c = s.match(/(\d{1,2})\.(\d{1,2})\.?\s*(?:um\s+)?(\d{1,2}):(\d{2})/);
+  if (fmt1c) {
+    const year = new Date().getFullYear();
+    return new Date(year, Number(fmt1c[2]) - 1, Number(fmt1c[1]), Number(fmt1c[3]), Number(fmt1c[4]));
+  }
+
+  // 4) DD.MM. ohne Zeit und ohne Jahr (z.B. "4.5.") → default 9:00
+  const fmt1d = s.match(/^(\d{1,2})\.(\d{1,2})\.?\s*$/);
+  if (fmt1d) {
+    const year = new Date().getFullYear();
+    return new Date(year, Number(fmt1d[2]) - 1, Number(fmt1d[1]), 9, 0);
+  }
+
+  // 5) "24. April, 13:00" or "24. April 2026, 13:00 Uhr" (with optional weekday prefix)
   const fmt2 = s.match(/(\d{1,2})\.\s*([A-Za-zäöü]+)\.?\s*(\d{4})?\s*,?\s*(\d{1,2}):(\d{2})/i);
   if (fmt2) {
     const day = Number(fmt2[1]);
@@ -41,7 +61,7 @@ function parseDate(dateStr: string): Date | null {
     }
   }
 
-  // 3) "Donnerstag, 24. April" without time → default 9:00
+  // 6) "Donnerstag, 24. April" without time → default 9:00
   const fmt3 = s.match(/(\d{1,2})\.\s*([A-Za-zäöü]+)\.?\s*(\d{4})?/i);
   if (fmt3) {
     const day = Number(fmt3[1]);
@@ -57,7 +77,14 @@ function parseDate(dateStr: string): Date | null {
     }
   }
 
-  // 4) ISO / native Date parse
+  // 7) Nur Uhrzeit mit "Uhr" (z.B. "16 Uhr" oder "16:00 Uhr") → heute
+  const timeOnly = s.match(/(\d{1,2})(?::(\d{2}))?\s*Uhr/i);
+  if (timeOnly) {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate(), Number(timeOnly[1]), timeOnly[2] ? Number(timeOnly[2]) : 0);
+  }
+
+  // 8) ISO / native Date parse
   const d = new Date(s);
   return isNaN(d.getTime()) ? null : d;
 }
@@ -124,9 +151,10 @@ function generateICS(data: CalendarEventData): string {
     dtstart = fmt(parsedDate);
     dtend = fmt(new Date(parsedDate.getTime() + 60 * 60 * 1000));
   } else {
-    const now = new Date();
-    dtstart = fmt(now);
-    dtend = fmt(new Date(now.getTime() + 60 * 60 * 1000));
+    // Kein gültiges Datum vorhanden – Fehler werfen statt aktuelle Zeit zu verwenden
+    throw new Error(
+      `Kein gültiges Termindatum vorhanden. Bitte stellen Sie sicher, dass ein konkretes Datum im Termin hinterlegt ist. (Erhaltener Wert: "${dateStr || "leer"}")`
+    );
   }
 
   const descriptionParts = [
