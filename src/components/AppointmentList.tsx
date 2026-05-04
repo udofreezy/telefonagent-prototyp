@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Appointment } from "@/types";
+import { Appointment, Customer } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
   RefreshCw,
@@ -71,12 +71,14 @@ function AppointmentCard({
   onReject,
   onDelete,
   confirmingId,
+  customer,
 }: {
   appointment: Appointment;
   onConfirm: (id: string) => void;
   onReject: (id: string) => void;
   onDelete: (id: string) => void;
   confirmingId: string | null;
+  customer?: Customer | null;
 }) {
   const isRejected = appointment.status === "rejected";
   const isConfirming = confirmingId === appointment.id;
@@ -116,6 +118,14 @@ function AppointmentCard({
               <p className="text-xs text-muted-foreground/60 mt-0.5">
                 Anruf vom {formatDate(appointment.createdAt)}
               </p>
+              {customer && (
+                <div className="flex items-center gap-1 mt-1">
+                  <User className="h-3 w-3 text-[#0693e3]" />
+                  <span className="text-[10px] font-medium text-[#0693e3]">
+                    Bekannter Patient: {customer.name} ({customer.patientenNr})
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -229,6 +239,7 @@ function AppointmentCard({
 
 export function AppointmentList() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
@@ -237,10 +248,17 @@ export function AppointmentList() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/appointments");
-      if (!res.ok) throw new Error("Fehler beim Laden.");
-      const data = await res.json();
+      const [aptRes, custRes] = await Promise.all([
+        fetch("/api/appointments"),
+        fetch("/api/customers"),
+      ]);
+      if (!aptRes.ok) throw new Error("Fehler beim Laden.");
+      const data = await aptRes.json();
       setAppointments(Array.isArray(data) ? data : []);
+      if (custRes.ok) {
+        const custData = await custRes.json();
+        setCustomers(Array.isArray(custData) ? custData : []);
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Fehler beim Laden der Termine."
@@ -433,6 +451,7 @@ export function AppointmentList() {
               onReject={handleReject}
               onDelete={handleDelete}
               confirmingId={confirmingId}
+              customer={appointment.customerId ? customers.find((c) => c.id === appointment.customerId) : null}
             />
           ))}
         </div>

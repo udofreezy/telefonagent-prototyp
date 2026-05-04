@@ -54,7 +54,34 @@ export interface Appointment {
   reason?: string;
   notes?: string;
   status: "pending" | "confirmed" | "rejected" | "deleted";
+  customerId?: string;
   createdAt: string;
+}
+
+export interface Treatment {
+  id: string;
+  date: string;
+  description: string;
+  dentist?: string;
+  cost?: number;
+  notes?: string;
+}
+
+export interface Customer {
+  id: string;
+  patientenNr: string;
+  name: string;
+  phone?: string;
+  email?: string;
+  dateOfBirth?: string;
+  address?: string;
+  notes?: string;
+  allergies?: string;
+  lastVisit?: string;
+  insuranceType?: "KVG" | "VVG" | "Privat";
+  treatments: Treatment[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CallLog {

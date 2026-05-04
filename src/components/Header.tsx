@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Phone, Settings, ClipboardList, Sparkles } from "lucide-react";
+import { Phone, Settings, ClipboardList, Sparkles, Calendar, Users } from "lucide-react";
 
 export function Header() {
   const pathname = usePathname();
@@ -10,6 +10,8 @@ export function Header() {
   const links = [
     { href: "/", label: "Agent konfigurieren", icon: Settings },
     { href: "/calls", label: "Anrufprotokoll", icon: ClipboardList },
+    { href: "/calendar", label: "Kalender", icon: Calendar },
+    { href: "/customers", label: "Kundenstamm", icon: Users },
   ];
 
   return (

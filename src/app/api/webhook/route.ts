@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { saveCallLog, saveCallStatus, getCallStatus, saveAppointment } from "@/lib/store";
+import { saveCallLog, saveCallStatus, getCallStatus, saveAppointment, findCustomerByPhone, findCustomerByName, saveCustomer } from "@/lib/store";
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,6 +43,20 @@ export async function POST(request: NextRequest) {
             const customerPhone = call.customer?.number;
             console.log(`[Webhook] structuredData for ${call.id}:`, JSON.stringify(sd));
             console.log(`[Webhook] customer phone: ${customerPhone}`);
+            // Try to match caller to existing customer
+            let customerId: string | undefined;
+            const phoneToMatch = sd.callerPhone || customerPhone;
+            let matchedCustomer = phoneToMatch ? await findCustomerByPhone(phoneToMatch) : null;
+            if (!matchedCustomer && sd.callerName) {
+              matchedCustomer = await findCustomerByName(sd.callerName);
+            }
+            if (matchedCustomer) {
+              customerId = matchedCustomer.id;
+              console.log(`[Webhook] Matched caller to customer: ${matchedCustomer.name} (${matchedCustomer.patientenNr})`);
+              // Update lastVisit
+              await saveCustomer({ ...matchedCustomer, lastVisit: new Date().toISOString().split("T")[0] });
+            }
+
             await saveAppointment({
               id: `apt-${call.id}-${Date.now()}`,
               callId: call.id,
@@ -53,9 +67,10 @@ export async function POST(request: NextRequest) {
               reason: sd.reason,
               notes: sd.notes,
               status: "pending",
+              customerId,
               createdAt: new Date().toISOString(),
             });
-            console.log(`[Webhook] Auto-created appointment for call ${call.id} (name: ${sd.callerName || 'n/a'}, reason: ${sd.reason || 'n/a'})`);
+            console.log(`[Webhook] Auto-created appointment for call ${call.id} (name: ${sd.callerName || 'n/a'}, reason: ${sd.reason || 'n/a'}, customerId: ${customerId || 'none'})`);
           }
 
           // Update live status with the completed call

@@ -1,4 +1,4 @@
-import { AgentConfig, Appointment, CallLog, CallStatus } from "@/types";
+import { AgentConfig, Appointment, CallLog, CallStatus, Customer } from "@/types";
 import { Redis } from "@upstash/redis";
 import { promises as fs } from "fs";
 import path from "path";
@@ -7,6 +7,7 @@ const AGENT_KEY = "agent-config";
 const CALLS_KEY = "call-logs";
 const CALL_STATUS_KEY = "call-status";
 const APPOINTMENTS_KEY = "appointments";
+const CUSTOMERS_KEY = "customers";
 
 // --- Redis storage (Vercel / Production) ---
 
@@ -27,6 +28,7 @@ const DATA_DIR = path.join(/* turbopackIgnore: true */ process.cwd(), "data");
 const AGENT_FILE = path.join(DATA_DIR, "agent.json");
 const CALLS_FILE = path.join(DATA_DIR, "calls.json");
 const APPOINTMENTS_FILE = path.join(DATA_DIR, "appointments.json");
+const CUSTOMERS_FILE = path.join(DATA_DIR, "customers.json");
 
 async function ensureDataDir() {
   try {
@@ -195,4 +197,71 @@ export async function deleteAppointment(id: string): Promise<void> {
     await ensureDataDir();
     await fs.writeFile(APPOINTMENTS_FILE, JSON.stringify(filtered, null, 2), "utf-8");
   }
+}
+
+// --- Customers ---
+
+export async function getCustomers(): Promise<Customer[]> {
+  if (useRedis()) {
+    const redis = getRedis();
+    return (await redis.get<Customer[]>(CUSTOMERS_KEY)) || [];
+  }
+
+  await ensureDataDir();
+  try {
+    const data = await fs.readFile(CUSTOMERS_FILE, "utf-8");
+    return JSON.parse(data);
+  } catch {
+    return [];
+  }
+}
+
+export async function saveCustomer(customer: Customer): Promise<void> {
+  const customers = await getCustomers();
+  const existingIndex = customers.findIndex((c) => c.id === customer.id);
+  if (existingIndex >= 0) {
+    customers[existingIndex] = { ...customers[existingIndex], ...customer, updatedAt: new Date().toISOString() };
+  } else {
+    customers.unshift(customer);
+  }
+
+  if (useRedis()) {
+    const redis = getRedis();
+    await redis.set(CUSTOMERS_KEY, customers);
+  } else {
+    await ensureDataDir();
+    await fs.writeFile(CUSTOMERS_FILE, JSON.stringify(customers, null, 2), "utf-8");
+  }
+}
+
+export async function deleteCustomer(id: string): Promise<void> {
+  const customers = await getCustomers();
+  const filtered = customers.filter((c) => c.id !== id);
+
+  if (useRedis()) {
+    const redis = getRedis();
+    await redis.set(CUSTOMERS_KEY, filtered);
+  } else {
+    await ensureDataDir();
+    await fs.writeFile(CUSTOMERS_FILE, JSON.stringify(filtered, null, 2), "utf-8");
+  }
+}
+
+function normalizePhone(phone: string): string {
+  return phone.replace(/\D/g, "").slice(-9);
+}
+
+export async function findCustomerByPhone(phone: string): Promise<Customer | null> {
+  if (!phone) return null;
+  const customers = await getCustomers();
+  const normalized = normalizePhone(phone);
+  if (normalized.length < 7) return null;
+  return customers.find((c) => c.phone && normalizePhone(c.phone) === normalized) || null;
+}
+
+export async function findCustomerByName(name: string): Promise<Customer | null> {
+  if (!name) return null;
+  const customers = await getCustomers();
+  const lower = name.toLowerCase().trim();
+  return customers.find((c) => c.name.toLowerCase().includes(lower) || lower.includes(c.name.toLowerCase())) || null;
 }
