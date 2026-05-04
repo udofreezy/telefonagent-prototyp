@@ -153,8 +153,11 @@ function generateICS(data: CalendarEventData): string {
 
   const uid = `${data.id}-${Date.now()}@clickfabrik.ch`;
 
-  const fmt = (d: Date) =>
-    d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  // Format date components directly as local time (no UTC conversion!)
+  // The Date objects from parseDate contain the intended local time values.
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  const fmtLocal = (d: Date) =>
+    `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
 
   let dtstart: string;
   let dtend: string;
@@ -162,16 +165,16 @@ function generateICS(data: CalendarEventData): string {
   const parsedDate = dateStr ? parseDate(dateStr) : null;
   let dateWarning = false;
   if (parsedDate) {
-    dtstart = fmt(parsedDate);
-    dtend = fmt(new Date(parsedDate.getTime() + 60 * 60 * 1000));
+    dtstart = fmtLocal(parsedDate);
+    dtend = fmtLocal(new Date(parsedDate.getTime() + 60 * 60 * 1000));
   } else {
     // Kein gültiges Datum – Fallback auf morgen 9:00 mit Warnung im Titel
     console.warn(`[CalDAV] WARNUNG: Datum konnte nicht geparst werden. Rohwert: "${dateStr || "leer"}". Verwende morgen 9:00 als Fallback.`);
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(9, 0, 0, 0);
-    dtstart = fmt(tomorrow);
-    dtend = fmt(new Date(tomorrow.getTime() + 60 * 60 * 1000));
+    dtstart = fmtLocal(tomorrow);
+    dtend = fmtLocal(new Date(tomorrow.getTime() + 60 * 60 * 1000));
     dateWarning = true;
   }
 
@@ -198,11 +201,28 @@ function generateICS(data: CalendarEventData): string {
     "PRODID:-//Clickfabrik//Telefonagent//DE",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
+    "BEGIN:VTIMEZONE",
+    "TZID:Europe/Zurich",
+    "BEGIN:DAYLIGHT",
+    "TZOFFSETFROM:+0100",
+    "TZOFFSETTO:+0200",
+    "TZNAME:CEST",
+    "DTSTART:19700329T020000",
+    "RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3",
+    "END:DAYLIGHT",
+    "BEGIN:STANDARD",
+    "TZOFFSETFROM:+0200",
+    "TZOFFSETTO:+0100",
+    "TZNAME:CET",
+    "DTSTART:19701025T030000",
+    "RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10",
+    "END:STANDARD",
+    "END:VTIMEZONE",
     "BEGIN:VEVENT",
     `UID:${uid}`,
-    `DTSTAMP:${fmt(new Date())}`,
-    `DTSTART:${dtstart}`,
-    `DTEND:${dtend}`,
+    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "")}`,
+    `DTSTART;TZID=Europe/Zurich:${dtstart}`,
+    `DTEND;TZID=Europe/Zurich:${dtend}`,
     `SUMMARY:${summary}`,
     `DESCRIPTION:${description}`,
     "STATUS:CONFIRMED",
