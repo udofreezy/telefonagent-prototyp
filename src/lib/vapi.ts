@@ -1,6 +1,7 @@
 import { VapiClient } from "@vapi-ai/server-sdk";
-import { AgentConfig } from "@/types";
+import { AgentConfig, Customer } from "@/types";
 import { buildSystemPrompt, buildGreeting, getTemplate } from "./templates";
+import { getCustomers } from "./store";
 
 const DEFAULT_CARTESIA_VOICE_ID = "3f4ade23-6eb4-4279-ab05-6a144947c4d5"; // German Conversational Woman
 
@@ -17,16 +18,71 @@ function getClient() {
   return new VapiClient({ token });
 }
 
+function formatCustomersForPrompt(customers: Customer[]): string {
+  if (customers.length === 0) return "";
+
+  let text = `\n\nPATIENTENDATENBANK:
+Du hast Zugriff auf unsere Patientendatenbank. Wenn ein Anrufer seinen Namen nennt, prüfe ob er bereits Patient bei uns ist. Falls ja, kannst du auf seine Daten zugreifen und personalisiert reagieren.
+
+WICHTIGE REGELN FÜR PATIENTENDATEN:
+- Nenne NIEMALS Diagnosen, Behandlungsdetails oder Allergien unaufgefordert am Telefon.
+- Du darfst Patienten wiedererkennen und z.B. sagen: "Schön, dass Sie wieder anrufen!" oder "Ich sehe, Sie waren zuletzt im [Monat] bei uns."
+- Bei bekannten Allergien: Notiere sie intern für den Zahnarzt, erwähne sie aber NICHT am Telefon, ausser der Patient fragt selbst danach.
+- Du kannst den bevorzugten Standort oder Zahnarzt vorschlagen, wenn der Patient eine Präferenz hat.
+- Behandlungskosten NICHT am Telefon nennen, ausser der Patient fragt explizit.
+- Datenschutz beachten: Gib keine Patientendaten an Dritte weiter.
+
+REGISTRIERTE PATIENTEN:\n`;
+
+  for (const c of customers) {
+    text += `\n--- Patient: ${c.name} ---\n`;
+    text += `PatientenNr: ${c.patientenNr}\n`;
+    if (c.phone) text += `Telefon: ${c.phone}\n`;
+    if (c.email) text += `E-Mail: ${c.email}\n`;
+    if (c.dateOfBirth) text += `Geburtsdatum: ${c.dateOfBirth}\n`;
+    if (c.address) text += `Adresse: ${c.address}\n`;
+    if (c.insuranceType) text += `Versicherung: ${c.insuranceType}\n`;
+    if (c.allergies) text += `⚠ ALLERGIEN: ${c.allergies}\n`;
+    if (c.lastVisit) text += `Letzter Besuch: ${c.lastVisit}\n`;
+    if (c.notes) text += `Hinweise: ${c.notes}\n`;
+    if (c.treatments && c.treatments.length > 0) {
+      text += `Behandlungshistorie:\n`;
+      for (const t of c.treatments.slice(0, 5)) {
+        text += `  - ${t.date}: ${t.description}`;
+        if (t.dentist) text += ` (${t.dentist})`;
+        if (t.notes) text += ` – ${t.notes}`;
+        text += `\n`;
+      }
+      if (c.treatments.length > 5) {
+        text += `  (+ ${c.treatments.length - 5} weitere Behandlungen)\n`;
+      }
+    }
+  }
+
+  return text;
+}
+
 export async function createOrUpdateAssistant(config: AgentConfig): Promise<string> {
   const client = getClient();
 
-  const systemPrompt = buildSystemPrompt({
+  // Fetch customers to inject into system prompt
+  let customers: Customer[] = [];
+  try {
+    customers = await getCustomers();
+  } catch (err) {
+    console.error("[Vapi] Could not load customers for prompt:", err);
+  }
+
+  const basePrompt = buildSystemPrompt({
     businessName: config.businessName,
     businessType: config.businessType,
     services: config.services,
     openingHours: config.openingHours,
     additionalInstructions: config.additionalInstructions,
   });
+
+  const systemPrompt = basePrompt + formatCustomersForPrompt(customers);
+  console.log(`[Vapi] System prompt built with ${customers.length} patients (${systemPrompt.length} chars)`);
 
   const template = getTemplate(config.businessType);
   const firstMessage = buildGreeting(template, config.businessName);

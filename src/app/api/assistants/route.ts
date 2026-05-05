@@ -58,6 +58,27 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// PATCH: Re-sync assistant with latest customer data
+export async function PATCH() {
+  try {
+    const config = await getAgentConfig();
+    if (!config?.vapiAssistantId || !config.businessName) {
+      return NextResponse.json({ error: "Kein Agent konfiguriert." }, { status: 400 });
+    }
+
+    // Re-create updates the prompt with fresh customer data
+    await createOrUpdateAssistant(config);
+
+    return NextResponse.json({ success: true, message: "Agent mit aktuellen Patientendaten synchronisiert." });
+  } catch (error) {
+    console.error("Error syncing assistant:", error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Fehler beim Synchronisieren." },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE() {
   try {
     const config = await getAgentConfig();
