@@ -187,7 +187,7 @@ function AppointmentPopover({ appointment, customer, onClose, onConfirm, onRejec
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-[#0693e3]" />
                 <p className="text-sm font-semibold text-[#0693e3]">
-                  Bekannter Patient: {customer.name} ({customer.patientenNr})
+                  Bekannter Kunde: {customer.name} ({customer.patientenNr})
                 </p>
               </div>
               {customer.insuranceType && (

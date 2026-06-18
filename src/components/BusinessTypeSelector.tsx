@@ -11,9 +11,11 @@ import {
   Building2,
   Smile,
   Sparkles,
+  MousePointerClick,
 } from "lucide-react";
 
 const icons: Record<BusinessType, React.ElementType> = {
+  clickfabrik: MousePointerClick,
   aesthetik: Sparkles,
   physiotherapie: Stethoscope,
   zahnarzt: Smile,

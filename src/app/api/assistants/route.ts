@@ -69,7 +69,7 @@ export async function PATCH() {
     // Re-create updates the prompt with fresh customer data
     await createOrUpdateAssistant(config);
 
-    return NextResponse.json({ success: true, message: "Agent mit aktuellen Patientendaten synchronisiert." });
+    return NextResponse.json({ success: true, message: "Agent mit aktuellen Kundendaten synchronisiert." });
   } catch (error) {
     console.error("Error syncing assistant:", error);
     return NextResponse.json(

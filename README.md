@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Clickfabrik – KI-Telefonassistent
 
-## Getting Started
+KI-Telefonagent für **[Clickfabrik](https://www.clickfabrik.ch)** – die Digitalagentur aus Basel.
+Der Agent nimmt eingehende Anrufe rund um die Uhr entgegen, beantwortet Fragen zu den
+Dienstleistungen, qualifiziert Leads und vereinbart kostenlose Erstgespräche (10–15 Min.).
 
-First, run the development server:
+Gebaut mit [Next.js](https://nextjs.org) (App Router) und [Vapi](https://vapi.ai) für Telefonie,
+Sprache (Cartesia) und Transkription (Deepgram). Das Sprachmodell ist Claude (Anthropic).
+
+## Funktionen
+
+- **Telefonassistent**: Begrüssung, Beratung zu allen Clickfabrik-Leistungen, Lead-Qualifizierung,
+  Terminvereinbarung und Rückrufnotizen – auf natürlichem, schweizernahem Hochdeutsch.
+- **Dashboard** (`/`): Agent in 5 Schritten konfigurieren (Branche, Begrüssung, Services, Zeiten,
+  Stimme) und aktivieren. Clickfabrik ist als Standard-Vorlage hinterlegt.
+- **Anrufprotokoll** (`/calls`): alle Anrufe mit Zusammenfassung, Transkript und strukturierten Daten.
+- **Kalender** (`/calendar`) & **Termine**: vom Agenten vereinbarte Erstgespräche.
+- **Kundenstamm** (`/customers`): optionale Kundendatenbank, die in den Agent-Prompt einfliesst.
+
+## Konfiguration der Prompts
+
+Die gesamte Agent-Persönlichkeit und das Branchen-Wissen liegen in:
+
+- `src/lib/templates.ts` – die Branchen-Vorlage `clickfabrik` (System-Prompt, Begrüssung,
+  Services, Öffnungszeiten, Preise) sowie die globalen Sprach- und Gesprächsführungs-Richtlinien.
+- `src/lib/vapi.ts` – Vapi-Assistant-Konfiguration: Stimme, Transkription, Erkennungs-Keywords,
+  Gesprächs-Zusammenfassung und strukturierte Datenextraktion.
+
+## Lokale Entwicklung
 
 ```bash
+npm install
+cp .env.local.example .env.local   # Werte eintragen
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Dann [http://localhost:3000](http://localhost:3000) öffnen.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment-Variablen
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Beschreibung |
+| --- | --- |
+| `VAPI_API_KEY` | API-Key aus dem [Vapi Dashboard](https://dashboard.vapi.ai) |
+| `VAPI_PHONE_NUMBER_ID` | ID der Telefonnummer, die dem Agent zugewiesen wird |
+| `VAPI_WEBHOOK_SECRET` | (optional) zum Verifizieren von Vapi-Webhooks |
+| `NEXT_PUBLIC_BASE_URL` | Öffentliche URL für Webhooks (in Produktion die Vercel-URL) |
+| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | (optional) Upstash Redis für persistente Speicherung in Produktion |
 
-## Learn More
+Ohne Redis werden Daten lokal im Ordner `data/` als JSON gespeichert.
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Auf [Vercel](https://vercel.com) deployen, die Environment-Variablen setzen und
+`NEXT_PUBLIC_BASE_URL` auf die Produktions-URL zeigen lassen, damit Vapi-Webhooks ankommen.

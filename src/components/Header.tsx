@@ -23,8 +23,8 @@ export function Header() {
               <Sparkles className="h-5 w-5 text-white" />
             </div>
             <div className="flex flex-col">
-              <span className="text-base font-semibold tracking-tight">Die Zahnärzte Basel</span>
-              <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Telefonassistent</span>
+              <span className="text-base font-semibold tracking-tight">Clickfabrik</span>
+              <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">KI-Telefonassistent</span>
             </div>
           </Link>
           <nav className="flex gap-1">

@@ -246,7 +246,7 @@ export function CustomerList() {
             </div>
             <div>
               <p className="text-2xl font-bold">{customers.length}</p>
-              <p className="text-xs text-muted-foreground">Patienten</p>
+              <p className="text-xs text-muted-foreground">Kunden</p>
             </div>
           </div>
         </div>
@@ -302,7 +302,7 @@ export function CustomerList() {
           </Button>
           <Button size="sm" className="rounded-lg bg-[#0693e3] hover:bg-[#0693e3]/90 text-white" onClick={() => setShowNewForm(!showNewForm)}>
             {showNewForm ? <X className="mr-2 h-3.5 w-3.5" /> : <UserPlus className="mr-2 h-3.5 w-3.5" />}
-            {showNewForm ? "Abbrechen" : "Neuer Patient"}
+            {showNewForm ? "Abbrechen" : "Neuer Kunde"}
           </Button>
         </div>
       </div>
@@ -310,7 +310,7 @@ export function CustomerList() {
       {/* New patient form */}
       {showNewForm && (
         <div className="rounded-xl border border-[#0693e3]/20 bg-[#0693e3]/5 p-4 space-y-3">
-          <p className="text-sm font-semibold">Neuen Patienten erfassen</p>
+          <p className="text-sm font-semibold">Neuen Kunden erfassen</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <input
               type="text"
@@ -351,7 +351,7 @@ export function CustomerList() {
             disabled={creating || !newName.trim()}
           >
             {creating ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <UserPlus className="mr-2 h-3.5 w-3.5" />}
-            Patient erstellen
+            Kunde erstellen
           </Button>
         </div>
       )}
@@ -363,14 +363,14 @@ export function CustomerList() {
             <div className="h-12 w-12 rounded-full border-2 border-[#0693e3]/20" />
             <div className="absolute inset-0 h-12 w-12 animate-spin rounded-full border-2 border-transparent border-t-[#0693e3]" />
           </div>
-          <p className="mt-4 text-sm text-muted-foreground">Patienten werden geladen...</p>
+          <p className="mt-4 text-sm text-muted-foreground">Kunden werden geladen...</p>
         </div>
       ) : customers.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-20 text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
             <Users className="h-7 w-7 text-muted-foreground" />
           </div>
-          <p className="mt-4 text-sm font-medium">Noch keine Patienten</p>
+          <p className="mt-4 text-sm font-medium">Noch keine Kunden</p>
           <p className="mt-1 text-xs text-muted-foreground">
             Klicken Sie auf &quot;Beispieldaten laden&quot; um Testdaten zu erstellen.
           </p>

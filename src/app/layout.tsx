@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Die Zahnärzte Basel – KI-Telefonassistent",
+  title: "Clickfabrik – KI-Telefonassistent",
   description:
-    "Intelligenter Telefonassistent für Die Zahnärzte Basel – Termine, Anfragen und Anrufe automatisch verwalten.",
+    "Intelligenter Telefonassistent für Clickfabrik – Anrufe entgegennehmen, Leads qualifizieren und Erstgespräche automatisch vereinbaren.",
 };
 
 export default function RootLayout({

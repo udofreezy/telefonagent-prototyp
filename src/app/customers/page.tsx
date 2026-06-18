@@ -8,7 +8,7 @@ export default function CustomersPage() {
           <span className="gradient-text">Kundenstamm</span>
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Patientendatenbank mit Behandlungshistorie und Versicherungsinformationen.
+          Kundendatenbank mit Kontaktdaten, Projekten und Gesprächsnotizen.
         </p>
       </div>
       <CustomerList />

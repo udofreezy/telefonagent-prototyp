@@ -51,18 +51,26 @@ const STEPS = [
   { id: 5, title: "Aktivieren", icon: CheckCircle2, desc: "Prüfen & starten" },
 ];
 
-export function AgentConfigurator() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [config, setConfig] = useState<AgentConfig>({
-    businessName: "",
-    businessType: "allgemein",
-    greeting: "",
-    services: "",
-    openingHours: "",
+const DEFAULT_BUSINESS_NAME = "Clickfabrik";
+const DEFAULT_BUSINESS_TYPE: BusinessType = "clickfabrik";
+const defaultTemplate = getTemplate(DEFAULT_BUSINESS_TYPE);
+
+function createDefaultConfig(): AgentConfig {
+  return {
+    businessName: DEFAULT_BUSINESS_NAME,
+    businessType: DEFAULT_BUSINESS_TYPE,
+    greeting: buildGreeting(defaultTemplate, DEFAULT_BUSINESS_NAME),
+    services: defaultTemplate.services,
+    openingHours: defaultTemplate.openingHours,
     additionalInstructions: "",
     calendarEnabled: false,
     voiceId: VOICE_OPTIONS[0].id,
-  });
+  };
+}
+
+export function AgentConfigurator() {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [config, setConfig] = useState<AgentConfig>(createDefaultConfig);
   const [loading, setLoading] = useState(false);
   const [loadingExisting, setLoadingExisting] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -155,16 +163,7 @@ export function AgentConfigurator() {
 
     try {
       await fetch("/api/assistants", { method: "DELETE" });
-      setConfig({
-        businessName: "",
-        businessType: "allgemein",
-        greeting: "",
-        services: "",
-        openingHours: "",
-        additionalInstructions: "",
-        calendarEnabled: false,
-        voiceId: VOICE_OPTIONS[0].id,
-      });
+      setConfig(createDefaultConfig());
       setCurrentStep(1);
     } catch {
       setError("Fehler beim Zurücksetzen.");
@@ -284,7 +283,7 @@ export function AgentConfigurator() {
                   </Label>
                   <Input
                     id="businessName"
-                    placeholder='z.B. "Praxis Müller" oder "Restaurant Sonne"'
+                    placeholder='z.B. "Clickfabrik"'
                     value={config.businessName}
                     onChange={(e) => handleNameChange(e.target.value)}
                     className="h-11 rounded-xl bg-background/50 text-base"

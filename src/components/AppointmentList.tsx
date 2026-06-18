@@ -122,7 +122,7 @@ function AppointmentCard({
                 <div className="flex items-center gap-1 mt-1">
                   <User className="h-3 w-3 text-[#0693e3]" />
                   <span className="text-[10px] font-medium text-[#0693e3]">
-                    Bekannter Patient: {customer.name} ({customer.patientenNr})
+                    Bekannter Kunde: {customer.name} ({customer.patientenNr})
                   </span>
                 </div>
               )}

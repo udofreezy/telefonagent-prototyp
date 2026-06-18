@@ -1,4 +1,5 @@
 export type BusinessType =
+  | "clickfabrik"
   | "aesthetik"
   | "physiotherapie"
   | "zahnarzt"

@@ -21,22 +21,21 @@ function getClient() {
 function formatCustomersForPrompt(customers: Customer[]): string {
   if (customers.length === 0) return "";
 
-  let text = `\n\nPATIENTENDATENBANK:
-Du hast Zugriff auf unsere Patientendatenbank. Wenn ein Anrufer seinen Namen nennt, prüfe ob er bereits Patient bei uns ist. Falls ja, kannst du auf seine Daten zugreifen und personalisiert reagieren.
+  let text = `\n\nKUNDENDATENBANK:
+Du hast Zugriff auf unsere Kundendatenbank. Wenn ein Anrufer seinen Namen nennt, prüfe ob er bereits Kunde bei uns ist. Falls ja, kannst du auf seine Daten zugreifen und persönlich auf ihn eingehen.
 
-WICHTIGE REGELN FÜR PATIENTENDATEN:
-- Nenne NIEMALS Diagnosen, Behandlungsdetails oder Allergien unaufgefordert am Telefon.
-- Du darfst Patienten wiedererkennen und z.B. sagen: "Schön, dass Sie wieder anrufen!" oder "Ich sehe, Sie waren zuletzt im [Monat] bei uns."
-- Bei bekannten Allergien: Notiere sie intern für den Zahnarzt, erwähne sie aber NICHT am Telefon, ausser der Patient fragt selbst danach.
-- Du kannst den bevorzugten Standort oder Zahnarzt vorschlagen, wenn der Patient eine Präferenz hat.
-- Behandlungskosten NICHT am Telefon nennen, ausser der Patient fragt explizit.
-- Datenschutz beachten: Gib keine Patientendaten an Dritte weiter.
+WICHTIGE REGELN FÜR KUNDENDATEN:
+- Du darfst bestehende Kunden wiedererkennen und z.B. sagen: "Schön, dass Sie wieder anrufen!" oder "Ich sehe, wir hatten zuletzt im [Monat] Kontakt."
+- Nenne interne Notizen, Konditionen oder Projektdetails NICHT unaufgefordert am Telefon.
+- Du kannst an ein bestehendes Projekt oder Anliegen anknüpfen, wenn es dazu passt.
+- Konkrete Preise oder Konditionen NICHT am Telefon nennen, ausser der Kunde fragt explizit danach – verweise sonst auf das persönliche Gespräch.
+- Datenschutz beachten: Gib keine Kundendaten an Dritte weiter.
 
-REGISTRIERTE PATIENTEN:\n`;
+REGISTRIERTE KUNDEN:\n`;
 
   for (const c of customers) {
-    text += `\n--- Patient: ${c.name} ---\n`;
-    text += `PatientenNr: ${c.patientenNr}\n`;
+    text += `\n--- Kunde: ${c.name} ---\n`;
+    text += `KundenNr: ${c.patientenNr}\n`;
     if (c.phone) text += `Telefon: ${c.phone}\n`;
     if (c.email) text += `E-Mail: ${c.email}\n`;
     if (c.dateOfBirth) text += `Geburtsdatum: ${c.dateOfBirth}\n`;
@@ -125,39 +124,44 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
         "Arlesheim:3",
         "Oberwil:3",
         "Bottmingen:3",
-        "Centralbahnstrasse:4",
-        // Zahnmedizinische Fachbegriffe
-        "Zahnärzte:5",
-        "Zahnarzt:5",
-        "Zahnärztin:5",
-        "Zahnreinigung:5",
-        "Dentalhygiene:5",
-        "Prophylaxe:5",
-        "Kontrolle:4",
-        "Karies:4",
-        "Wurzelbehandlung:5",
-        "Endodontie:4",
-        "Parodontitis:4",
-        "Parodontose:4",
-        "Implantat:5",
-        "Implantate:5",
-        "Straumann:5",
-        "Krone:4",
-        "Kronen:4",
-        "Brücke:4",
-        "Prothese:4",
-        "Bleaching:5",
-        "Veneers:5",
-        "Kieferorthopädie:4",
-        "Zahnspange:4",
-        "Zahnhase:5",
-        "Lachgas:5",
-        "Dämmerschlaf:5",
-        "Vollnarkose:5",
-        "Angstpatient:4",
-        "Weisheitszahn:4",
-        "Zahnschmerzen:5",
-        "Notfall:5",
+        // Clickfabrik & Digital-/Marketing-Fachbegriffe
+        "Clickfabrik:5",
+        "Webseite:5",
+        "Website:5",
+        "Homepage:4",
+        "Webauftritt:4",
+        "Relaunch:4",
+        "Online-Shop:5",
+        "Onlineshop:5",
+        "Webshop:4",
+        "E-Commerce:5",
+        "Shopify:5",
+        "WooCommerce:5",
+        "WordPress:4",
+        "SEO:5",
+        "Suchmaschine:4",
+        "Google:4",
+        "Social Media:5",
+        "Instagram:5",
+        "Facebook:5",
+        "LinkedIn:5",
+        "TikTok:5",
+        "Reel:4",
+        "Reels:4",
+        "Posts:3",
+        "Kampagne:4",
+        "Marketing:4",
+        "Logo:4",
+        "Grafik:4",
+        "Design:4",
+        "Branding:4",
+        "Motion:3",
+        "Telefonagent:5",
+        "Offerte:5",
+        "Angebot:4",
+        "Erstgespräch:5",
+        "Performance:3",
+        "Wartung:3",
       ],
     },
     model: {
