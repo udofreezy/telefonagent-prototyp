@@ -8,7 +8,7 @@ export default function HomePage() {
           <span className="gradient-text">Telefonassistent konfigurieren</span>
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Konfigurieren Sie den KI-Telefonassistenten für Clickfabrik – nimmt Anrufe entgegen, qualifiziert Leads und vereinbart kostenlose Erstgespräche.
+          Konfigurieren Sie den KI-Telefonassistenten für Die Zahnärzte – nimmt Anrufe entgegen, beantwortet Patientenfragen und vereinbart Termine an allen Standorten.
         </p>
       </div>
       <AgentConfigurator />

@@ -59,8 +59,8 @@ function CustomerCard({ customer }: { customer: Customer }) {
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0693e3]/10">
-              <Users className="h-5 w-5 text-[#0693e3]" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1f90b2]/10">
+              <Users className="h-5 w-5 text-[#1f90b2]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -132,7 +132,7 @@ function CustomerCard({ customer }: { customer: Customer }) {
               .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
               .map((t) => (
                 <div key={t.id} className="relative">
-                  <div className="absolute -left-[21px] top-1.5 h-2 w-2 rounded-full bg-[#0693e3]" />
+                  <div className="absolute -left-[21px] top-1.5 h-2 w-2 rounded-full bg-[#1f90b2]" />
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-semibold">{formatDate(t.date)}</span>
@@ -241,12 +241,12 @@ export function CustomerList() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="rounded-2xl border border-border/50 bg-card p-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0693e3]/10">
-              <Users className="h-5 w-5 text-[#0693e3]" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1f90b2]/10">
+              <Users className="h-5 w-5 text-[#1f90b2]" />
             </div>
             <div>
               <p className="text-2xl font-bold">{customers.length}</p>
-              <p className="text-xs text-muted-foreground">Kunden</p>
+              <p className="text-xs text-muted-foreground">Patienten</p>
             </div>
           </div>
         </div>
@@ -287,7 +287,7 @@ export function CustomerList() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              className="h-9 w-full sm:w-64 rounded-lg border border-border bg-background pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0693e3]/50"
+              className="h-9 w-full sm:w-64 rounded-lg border border-border bg-background pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1f90b2]/50"
             />
           </div>
           <Button variant="outline" size="sm" className="rounded-lg" onClick={handleSearch} disabled={loading}>
@@ -300,43 +300,43 @@ export function CustomerList() {
             {seeding ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <Database className="mr-2 h-3.5 w-3.5" />}
             Beispieldaten laden
           </Button>
-          <Button size="sm" className="rounded-lg bg-[#0693e3] hover:bg-[#0693e3]/90 text-white" onClick={() => setShowNewForm(!showNewForm)}>
+          <Button size="sm" className="rounded-lg bg-[#1f90b2] hover:bg-[#1f90b2]/90 text-white" onClick={() => setShowNewForm(!showNewForm)}>
             {showNewForm ? <X className="mr-2 h-3.5 w-3.5" /> : <UserPlus className="mr-2 h-3.5 w-3.5" />}
-            {showNewForm ? "Abbrechen" : "Neuer Kunde"}
+            {showNewForm ? "Abbrechen" : "Neuer Patient"}
           </Button>
         </div>
       </div>
 
       {/* New patient form */}
       {showNewForm && (
-        <div className="rounded-xl border border-[#0693e3]/20 bg-[#0693e3]/5 p-4 space-y-3">
-          <p className="text-sm font-semibold">Neuen Kunden erfassen</p>
+        <div className="rounded-xl border border-[#1f90b2]/20 bg-[#1f90b2]/5 p-4 space-y-3">
+          <p className="text-sm font-semibold">Neuen Patienten erfassen</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <input
               type="text"
               placeholder="Name *"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className="h-9 rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0693e3]/50"
+              className="h-9 rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1f90b2]/50"
             />
             <input
               type="text"
               placeholder="Telefon"
               value={newPhone}
               onChange={(e) => setNewPhone(e.target.value)}
-              className="h-9 rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0693e3]/50"
+              className="h-9 rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1f90b2]/50"
             />
             <input
               type="email"
               placeholder="E-Mail"
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
-              className="h-9 rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0693e3]/50"
+              className="h-9 rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1f90b2]/50"
             />
             <select
               value={newInsurance}
               onChange={(e) => setNewInsurance(e.target.value as "KVG" | "VVG" | "Privat" | "")}
-              className="h-9 rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0693e3]/50"
+              className="h-9 rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1f90b2]/50"
             >
               <option value="">Versicherung wählen...</option>
               <option value="KVG">KVG</option>
@@ -346,12 +346,12 @@ export function CustomerList() {
           </div>
           <Button
             size="sm"
-            className="rounded-lg bg-[#0693e3] hover:bg-[#0693e3]/90 text-white"
+            className="rounded-lg bg-[#1f90b2] hover:bg-[#1f90b2]/90 text-white"
             onClick={handleCreate}
             disabled={creating || !newName.trim()}
           >
             {creating ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <UserPlus className="mr-2 h-3.5 w-3.5" />}
-            Kunde erstellen
+            Patient erfassen
           </Button>
         </div>
       )}
@@ -360,17 +360,17 @@ export function CustomerList() {
       {loading && customers.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20">
           <div className="relative">
-            <div className="h-12 w-12 rounded-full border-2 border-[#0693e3]/20" />
-            <div className="absolute inset-0 h-12 w-12 animate-spin rounded-full border-2 border-transparent border-t-[#0693e3]" />
+            <div className="h-12 w-12 rounded-full border-2 border-[#1f90b2]/20" />
+            <div className="absolute inset-0 h-12 w-12 animate-spin rounded-full border-2 border-transparent border-t-[#1f90b2]" />
           </div>
-          <p className="mt-4 text-sm text-muted-foreground">Kunden werden geladen...</p>
+          <p className="mt-4 text-sm text-muted-foreground">Patienten werden geladen...</p>
         </div>
       ) : customers.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-20 text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
             <Users className="h-7 w-7 text-muted-foreground" />
           </div>
-          <p className="mt-4 text-sm font-medium">Noch keine Kunden</p>
+          <p className="mt-4 text-sm font-medium">Noch keine Patienten</p>
           <p className="mt-1 text-xs text-muted-foreground">
             Klicken Sie auf &quot;Beispieldaten laden&quot; um Testdaten zu erstellen.
           </p>

@@ -44,13 +44,13 @@ export function BusinessTypeSelector({ value, onChange }: Props) {
               onClick={() => onChange(template.id)}
               className={`flex items-center gap-2.5 rounded-xl border p-3 text-left transition-all duration-200 ${
                 isActive
-                  ? "border-[#0693e3] bg-[#0693e3]/5 shadow-md shadow-[#0693e3]/10"
+                  ? "border-[#1f90b2] bg-[#1f90b2]/5 shadow-md shadow-[#1f90b2]/10"
                   : "border-border/50 bg-background/30 hover:border-border hover:bg-background/50"
               }`}
             >
               <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${
                 isActive
-                  ? "bg-[#0693e3] text-white"
+                  ? "bg-[#1f90b2] text-white"
                   : "bg-muted text-muted-foreground"
               }`}>
                 <Icon className="h-4 w-4" />

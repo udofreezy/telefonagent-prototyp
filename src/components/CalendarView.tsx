@@ -153,7 +153,7 @@ function AppointmentPopover({ appointment, customer, onClose, onConfirm, onRejec
 
         <div className="space-y-3 px-5 py-4">
           <div className="flex items-start gap-3 rounded-lg bg-muted/50 px-3 py-2.5">
-            <Clock className="h-4 w-4 text-[#0693e3] mt-0.5 shrink-0" />
+            <Clock className="h-4 w-4 text-[#1f90b2] mt-0.5 shrink-0" />
             <div>
               <p className="text-xs font-medium text-muted-foreground">Termin</p>
               <p className={`text-sm font-semibold ${appointment.appointmentDate ? "text-foreground" : "text-red-400"}`}>
@@ -164,7 +164,7 @@ function AppointmentPopover({ appointment, customer, onClose, onConfirm, onRejec
 
           {appointment.reason && (
             <div className="flex items-start gap-3 rounded-lg bg-muted/50 px-3 py-2.5">
-              <MessageSquare className="h-4 w-4 text-[#0693e3] mt-0.5 shrink-0" />
+              <MessageSquare className="h-4 w-4 text-[#1f90b2] mt-0.5 shrink-0" />
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Anliegen</p>
                 <p className="text-sm font-medium">{appointment.reason}</p>
@@ -183,10 +183,10 @@ function AppointmentPopover({ appointment, customer, onClose, onConfirm, onRejec
           )}
 
           {customer && (
-            <div className="rounded-lg border border-[#0693e3]/20 bg-[#0693e3]/5 px-3 py-2.5 space-y-1.5">
+            <div className="rounded-lg border border-[#1f90b2]/20 bg-[#1f90b2]/5 px-3 py-2.5 space-y-1.5">
               <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-[#0693e3]" />
-                <p className="text-sm font-semibold text-[#0693e3]">
+                <User className="h-4 w-4 text-[#1f90b2]" />
+                <p className="text-sm font-semibold text-[#1f90b2]">
                   Bekannter Kunde: {customer.name} ({customer.patientenNr})
                 </p>
               </div>
@@ -388,8 +388,8 @@ export function CalendarView() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20">
           <div className="relative">
-            <div className="h-12 w-12 rounded-full border-2 border-[#0693e3]/20" />
-            <div className="absolute inset-0 h-12 w-12 animate-spin rounded-full border-2 border-transparent border-t-[#0693e3]" />
+            <div className="h-12 w-12 rounded-full border-2 border-[#1f90b2]/20" />
+            <div className="absolute inset-0 h-12 w-12 animate-spin rounded-full border-2 border-transparent border-t-[#1f90b2]" />
           </div>
           <p className="mt-4 text-sm text-muted-foreground">Kalender wird geladen...</p>
         </div>
@@ -420,11 +420,11 @@ export function CalendarView() {
                   <div
                     key={di}
                     className={`min-h-[100px] p-1.5 transition-colors ${
-                      isToday ? "ring-2 ring-inset ring-[#0693e3] bg-[#0693e3]/5" : ""
+                      isToday ? "ring-2 ring-inset ring-[#1f90b2] bg-[#1f90b2]/5" : ""
                     } ${isWeekend && !isToday ? "bg-muted/10" : ""}`}
                   >
                     <div className={`mb-1 text-right text-xs font-medium ${
-                      isToday ? "text-[#0693e3] font-bold" : "text-muted-foreground"
+                      isToday ? "text-[#1f90b2] font-bold" : "text-muted-foreground"
                     }`}>
                       {date.getDate()}
                     </div>

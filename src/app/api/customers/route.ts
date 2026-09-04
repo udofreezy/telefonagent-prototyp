@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(customers);
   } catch (error) {
     console.error("Error fetching customers:", error);
-    return NextResponse.json({ error: "Fehler beim Laden der Kunden." }, { status: 500 });
+    return NextResponse.json({ error: "Fehler beim Laden der Patienten." }, { status: 500 });
   }
 }
 
@@ -69,7 +69,7 @@ export async function PATCH(request: NextRequest) {
     const customer = customers.find((c) => c.id === id);
 
     if (!customer) {
-      return NextResponse.json({ error: "Kunde nicht gefunden." }, { status: 404 });
+      return NextResponse.json({ error: "Patient nicht gefunden." }, { status: 404 });
     }
 
     await saveCustomer({ ...customer, ...updates });

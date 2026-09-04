@@ -15,9 +15,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Clickfabrik – KI-Telefonassistent",
+  title: "Die Zahnärzte – KI-Telefonassistent",
   description:
-    "Intelligenter Telefonassistent für Clickfabrik – Anrufe entgegennehmen, Leads qualifizieren und Erstgespräche automatisch vereinbaren.",
+    "Intelligenter Telefonassistent für Die Zahnärzte – nimmt Anrufe entgegen, beantwortet Patientenfragen und vereinbart Termine an allen Standorten in Basel, Riehen und Birsfelden.",
+  icons: {
+    icon: "/dz-icon.png",
+    apple: "/dz-icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -33,9 +37,6 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background">
         <Header />
         <main className="flex-1 bg-grid">{children}</main>
-        <footer className="py-2 text-center text-[10px] text-muted-foreground/50">
-          Deploy-Test: 2026-09-05
-        </footer>
       </body>
     </html>
   );

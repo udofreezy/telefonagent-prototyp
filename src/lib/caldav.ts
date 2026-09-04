@@ -151,7 +151,7 @@ function generateICS(data: CalendarEventData): string {
   const dateStr = data.appointmentDate || fromSummary.date || "";
   const callerPhone = data.callerPhone || fromSummary.phone;
 
-  const uid = `${data.id}-${Date.now()}@clickfabrik.ch`;
+  const uid = `${data.id}-${Date.now()}@diezahnaerzte.ch`;
 
   // Format date components directly as local time (no UTC conversion!)
   // The Date objects from parseDate contain the intended local time values.
@@ -198,7 +198,7 @@ function generateICS(data: CalendarEventData): string {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Clickfabrik//Telefonagent//DE",
+    "PRODID:-//DieZahnaerzte//Telefonagent//DE",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VTIMEZONE",
