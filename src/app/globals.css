@@ -162,12 +162,9 @@
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Gradient text */
+/* Heading accent color (solid, matching diezahnaerzte.ch headings) */
 .gradient-text {
-  background: linear-gradient(135deg, #1f90b2 0%, #55c1e2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #1f90b2;
 }
 
 /* Smooth card hover */
