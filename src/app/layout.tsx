@@ -33,6 +33,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background">
         <Header />
         <main className="flex-1 bg-grid">{children}</main>
+        <footer className="py-2 text-center text-[10px] text-muted-foreground/50">
+          Deploy-Test: 2026-09-05
+        </footer>
       </body>
     </html>
   );
