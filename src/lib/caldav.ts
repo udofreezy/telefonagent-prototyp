@@ -17,6 +17,20 @@ const MONTH_MAP: Record<string, number> = {
   jan: 0, feb: 1, mär: 2, apr: 3, jun: 5, jul: 6, aug: 7, sep: 8, okt: 9, nov: 10, dez: 11,
 };
 
+// Wenn im Text kein Jahr genannt wurde, nehmen wir das aktuelle Jahr an - ausser das
+// Datum liegt dann bereits mehr als einen Tag in der Vergangenheit. Dann ist ein
+// Termin im nächsten Jahr gemeint (z.B. Anruf im Dezember für einen Termin im Januar).
+function resolveYear(month: number, day: number, hour: number, minute: number): number {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const candidate = new Date(currentYear, month, day, hour, minute);
+  const oneDayMs = 24 * 60 * 60 * 1000;
+  if (candidate.getTime() < now.getTime() - oneDayMs) {
+    return currentYear + 1;
+  }
+  return currentYear;
+}
+
 function parseDate(dateStr: string): Date | null {
   if (!dateStr) return null;
   const s = dateStr.trim();
@@ -36,15 +50,19 @@ function parseDate(dateStr: string): Date | null {
   // 3) DD.MM. HH:mm ohne Jahr (z.B. "4.5. 16:00" oder "04.05. um 16:00")
   const fmt1c = s.match(/(\d{1,2})\.(\d{1,2})\.?\s*(?:um\s+)?(\d{1,2}):(\d{2})/);
   if (fmt1c) {
-    const year = new Date().getFullYear();
-    return new Date(year, Number(fmt1c[2]) - 1, Number(fmt1c[1]), Number(fmt1c[3]), Number(fmt1c[4]));
+    const month = Number(fmt1c[2]) - 1;
+    const day = Number(fmt1c[1]);
+    const hour = Number(fmt1c[3]);
+    const minute = Number(fmt1c[4]);
+    return new Date(resolveYear(month, day, hour, minute), month, day, hour, minute);
   }
 
   // 4) DD.MM. ohne Zeit und ohne Jahr (z.B. "4.5.") → default 9:00
   const fmt1d = s.match(/^(\d{1,2})\.(\d{1,2})\.?\s*$/);
   if (fmt1d) {
-    const year = new Date().getFullYear();
-    return new Date(year, Number(fmt1d[2]) - 1, Number(fmt1d[1]), 9, 0);
+    const month = Number(fmt1d[2]) - 1;
+    const day = Number(fmt1d[1]);
+    return new Date(resolveYear(month, day, 9, 0), month, day, 9, 0);
   }
 
   // 5) "24. April, 13:00" or "24. April 2026, 13:00 Uhr" (with optional weekday prefix)
@@ -53,10 +71,10 @@ function parseDate(dateStr: string): Date | null {
     const day = Number(fmt2[1]);
     const monthName = fmt2[2].toLowerCase();
     const month = MONTH_MAP[monthName];
-    const year = fmt2[3] ? Number(fmt2[3]) : new Date().getFullYear();
     const hour = Number(fmt2[4]);
     const minute = Number(fmt2[5]);
     if (month !== undefined) {
+      const year = fmt2[3] ? Number(fmt2[3]) : resolveYear(month, day, hour, minute);
       return new Date(year, month, day, hour, minute);
     }
   }
@@ -67,9 +85,9 @@ function parseDate(dateStr: string): Date | null {
     const day = Number(fmt2b[1]);
     const monthName = fmt2b[2].toLowerCase();
     const month = MONTH_MAP[monthName];
-    const year = fmt2b[3] ? Number(fmt2b[3]) : new Date().getFullYear();
     const hour = Number(fmt2b[4]);
     if (month !== undefined) {
+      const year = fmt2b[3] ? Number(fmt2b[3]) : resolveYear(month, day, hour, 0);
       return new Date(year, month, day, hour, 0);
     }
   }
@@ -80,13 +98,13 @@ function parseDate(dateStr: string): Date | null {
     const day = Number(fmt3[1]);
     const monthName = fmt3[2].toLowerCase();
     const month = MONTH_MAP[monthName];
-    const year = fmt3[3] ? Number(fmt3[3]) : new Date().getFullYear();
     if (month !== undefined) {
       // Extract time: "HH:mm" or "HH Uhr"
       const timeMatch = s.match(/(\d{1,2}):(\d{2})/);
       const timeUhrMatch = s.match(/(\d{1,2})\s*Uhr/i);
       const hour = timeMatch ? Number(timeMatch[1]) : (timeUhrMatch ? Number(timeUhrMatch[1]) : 9);
       const minute = timeMatch ? Number(timeMatch[2]) : 0;
+      const year = fmt3[3] ? Number(fmt3[3]) : resolveYear(month, day, hour, minute);
       return new Date(year, month, day, hour, minute);
     }
   }

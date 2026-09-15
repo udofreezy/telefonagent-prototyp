@@ -65,6 +65,9 @@ Dann [http://localhost:3000](http://localhost:3000) öffnen.
 | `VAPI_WEBHOOK_SECRET` | (optional) zum Verifizieren von Vapi-Webhooks |
 | `NEXT_PUBLIC_BASE_URL` | Öffentliche URL für Webhooks (in Produktion die Vercel-URL) |
 | `KV_REST_API_URL` / `KV_REST_API_TOKEN` | (optional) Upstash Redis für persistente Speicherung in Produktion |
+| `CALDAV_URL` | Server-URL des CalDAV-Kalenders (z.B. Nextcloud, iCloud, Fastmail). **Ohne diese Variable werden vereinbarte Termine nicht ins Kalender eingetragen.** |
+| `CALDAV_CALENDAR_URL` | (optional) URL des konkreten Kalenders, falls der Account mehrere hat |
+| `CALDAV_USERNAME` / `CALDAV_PASSWORD` | Zugangsdaten für den CalDAV-Kalender |
 
 Ohne Redis werden Daten lokal im Ordner `data/` als JSON gespeichert.
 

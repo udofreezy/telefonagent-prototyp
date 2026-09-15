@@ -57,6 +57,7 @@ export interface Appointment {
   status: "pending" | "confirmed" | "rejected" | "deleted";
   customerId?: string;
   createdAt: string;
+  calendarError?: string;
 }
 
 export interface Treatment {

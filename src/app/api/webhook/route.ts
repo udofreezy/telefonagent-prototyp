@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveCallLog, saveCallStatus, getCallStatus, saveAppointment, findCustomerByPhone, findCustomerByName, saveCustomer } from "@/lib/store";
+import { createCalendarEvent } from "@/lib/caldav";
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,6 +58,34 @@ export async function POST(request: NextRequest) {
               await saveCustomer({ ...matchedCustomer, lastVisit: new Date().toISOString().split("T")[0] });
             }
 
+            // Wenn der Anrufer im Gespräch tatsächlich einen Termin vereinbart hat (nicht nur eine
+            // allgemeine Anfrage) und ein Datum erkannt wurde, direkt automatisch ins Kalender
+            // eintragen - der Anrufer soll sich nicht darauf verlassen müssen, dass später jemand
+            // im Dashboard manuell auf "Eintragen" klickt.
+            const hasAgreedAppointment = sd.appointmentRequested === true && !!sd.appointmentDate;
+            let status: "pending" | "confirmed" = "pending";
+            let calendarError: string | undefined;
+
+            if (hasAgreedAppointment) {
+              try {
+                await createCalendarEvent({
+                  id: `apt-${call.id}`,
+                  callerName: sd.callerName,
+                  callerPhone: sd.callerPhone || customerPhone,
+                  callerEmail: sd.callerEmail,
+                  reason: sd.reason,
+                  appointmentDate: sd.appointmentDate,
+                  notes: sd.notes,
+                  summary: analysis.summary || message.summary || call.summary,
+                });
+                status = "confirmed";
+                console.log(`[Webhook] Termin automatisch ins Kalender eingetragen für Anruf ${call.id}`);
+              } catch (err) {
+                calendarError = err instanceof Error ? err.message : "Fehler beim automatischen Kalender-Eintrag.";
+                console.error(`[Webhook] Automatischer Kalender-Eintrag fehlgeschlagen für Anruf ${call.id}:`, err);
+              }
+            }
+
             await saveAppointment({
               id: `apt-${call.id}-${Date.now()}`,
               callId: call.id,
@@ -66,11 +95,12 @@ export async function POST(request: NextRequest) {
               appointmentDate: sd.appointmentDate,
               reason: sd.reason,
               notes: sd.notes,
-              status: "pending",
+              status,
+              calendarError,
               customerId,
               createdAt: new Date().toISOString(),
             });
-            console.log(`[Webhook] Auto-created appointment for call ${call.id} (name: ${sd.callerName || 'n/a'}, reason: ${sd.reason || 'n/a'}, customerId: ${customerId || 'none'})`);
+            console.log(`[Webhook] Auto-created appointment for call ${call.id} (name: ${sd.callerName || 'n/a'}, reason: ${sd.reason || 'n/a'}, customerId: ${customerId || 'none'}, status: ${status})`);
           }
 
           // Update live status with the completed call

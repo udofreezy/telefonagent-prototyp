@@ -228,10 +228,12 @@ Erstelle eine strukturierte deutsche Gesprächsnotiz im folgenden Format:
 - (Stichpunkt 1)
 - (Stichpunkt 2)
 - (Stichpunkt 3)
-**Termin/Reservierung:** (Datum, Uhrzeit, Details - falls vereinbart, sonst "Kein Termin")
+**Termin/Reservierung:** (falls vereinbart: konkretes Datum und Uhrzeit im Format "DD.MM.YYYY HH:mm" plus Anliegen, sonst "Kein Termin")
 **Rückruf gewünscht:** (Ja/Nein, mit Details)
 **Nächste Schritte:** (Was muss das Unternehmen jetzt tun?)
 **Sonstiges:** (Wichtige Zusatzinfos, Allergien, Sonderwünsche, etc.)
+
+WICHTIG für "Termin/Reservierung": Der Anruf fand statt am {{"now" | date: "%A, %Y-%m-%d %H:%M", "Europe/Zurich"}} (Schweizer Zeit). Löse relative Zeitangaben aus dem Gespräch ("morgen", "übermorgen", "nächsten Montag" etc.) relativ zu diesem Zeitpunkt in ein konkretes Datum auf - schreibe NIEMALS ein relatives Wort wie "morgen" ins Feld, sondern immer das ausgerechnete Datum. Achte auf den Jahreswechsel: Fällt das berechnete Datum vor den Anruf-Zeitpunkt, ist das nächste Jahr gemeint.
 
 Sei präzise, aber vollständig. Notiere alle konkreten Informationen, die der Anrufer genannt hat.`,
           },
@@ -255,7 +257,7 @@ WICHTIGE REGELN:
 - Notiere das Anliegen/den Grund des Anrufs so präzise wie möglich (z.B. "Kontrolle", "Zahnreinigung", "Beratung Trauringe", NICHT einfach nur "Termin").
 - Wenn ein Feld nicht genannt wurde, lasse es leer.
 - Die Telefonnummer kommt automatisch vom System – extrahiere sie nur wenn sie explizit im Gespräch genannt wird.
-- DATUM/UHRZEIT: Löse relative Zeitangaben wie "morgen", "übermorgen", "nächste Woche", "am Montag" in ein konkretes Datum auf. Das Gespräch fand am {{call.startedAt}} statt. Berechne das korrekte Datum relativ dazu. Format: "DD.MM.YYYY HH:mm" (z.B. "24.04.2026 13:00"). Wenn der Agent im Gespräch ein konkretes Datum bestätigt hat, verwende dieses.`,
+- DATUM/UHRZEIT: Der Anruf fand statt am {{"now" | date: "%A, %Y-%m-%d %H:%M", "Europe/Zurich"}} (Schweizer Zeit) - das ist dein Bezugspunkt für "heute". Löse relative Zeitangaben wie "morgen", "übermorgen", "nächste Woche", "am Montag" IMMER relativ zu diesem Zeitpunkt auf, niemals relativ zu einem anderen Datum. Format: "DD.MM.YYYY HH:mm" (z.B. "24.04.2026 13:00"). Verwende das korrekte Jahr - liegt das berechnete Datum vor dem Anruf-Zeitpunkt (z.B. Anruf im Dezember für einen Termin im Januar), nimm das nächste Jahr. Wenn der Agent im Gespräch ein konkretes Datum bestätigt hat, verwende dieses.`,
           },
           {
             role: "user" as const,

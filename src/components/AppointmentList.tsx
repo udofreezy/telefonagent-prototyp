@@ -220,6 +220,17 @@ function AppointmentCard({
               </div>
             )}
 
+            {/* Kalender-Fehler */}
+            {appointment.calendarError && (
+              <div className="flex items-start gap-2 rounded-lg bg-red-500/10 px-3 py-2 sm:col-span-2">
+                <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs font-medium text-red-400">Nicht automatisch ins Kalender eingetragen</p>
+                  <p className="font-medium text-red-400/90">{appointment.calendarError}</p>
+                </div>
+              </div>
+            )}
+
             {/* Notizen / Hinweise */}
             {appointment.notes && (
               <div className="flex items-start gap-2 rounded-lg bg-muted/50 px-3 py-2 sm:col-span-2">

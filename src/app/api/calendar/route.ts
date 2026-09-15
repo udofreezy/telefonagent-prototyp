@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createCalendarEvent } from "@/lib/caldav";
-import { getAppointments, getCallLogs } from "@/lib/store";
+import { getAppointments, getCallLogs, saveAppointment } from "@/lib/store";
 
 export async function POST(request: NextRequest) {
   try {
@@ -45,6 +45,8 @@ export async function POST(request: NextRequest) {
         notes: appointment.notes,
         summary: callSummary,
       });
+
+      await saveAppointment({ ...appointment, calendarError: undefined });
 
       return NextResponse.json({ ok: true });
     }
