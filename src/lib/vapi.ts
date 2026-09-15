@@ -167,6 +167,7 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
         "Abgebrochen:3",
         "Termin:5",
         "Erstgespräch:3",
+        "SBB:5",
       ],
     },
     model: {
@@ -179,7 +180,7 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
         },
       ],
       temperature: 0.6,
-      maxTokens: 150,
+      maxTokens: 300,
     },
     voice: {
       provider: "cartesia" as const,
@@ -202,7 +203,10 @@ export async function createOrUpdateAssistant(config: AgentConfig): Promise<stri
       },
     },
     stopSpeakingPlan: {
-      numWords: 0,
+      // numWords: 0 würde bedeuten, dass JEDES Geräusch des Anrufers (Atmen, "mhm",
+      // Hintergrundlärm) den Agenten sofort mitten im Satz unterbricht. Mit 2 werden
+      // kurze Bestätigungslaute ignoriert, echtes Dazwischenreden unterbricht weiterhin.
+      numWords: 2,
       voiceSeconds: 0.2,
       backoffSeconds: 0.8,
     },
@@ -257,7 +261,8 @@ WICHTIGE REGELN:
 - Notiere das Anliegen/den Grund des Anrufs so präzise wie möglich (z.B. "Kontrolle", "Zahnreinigung", "Beratung Trauringe", NICHT einfach nur "Termin").
 - Wenn ein Feld nicht genannt wurde, lasse es leer.
 - Die Telefonnummer kommt automatisch vom System – extrahiere sie nur wenn sie explizit im Gespräch genannt wird.
-- DATUM/UHRZEIT: Der Anruf fand statt am {{"now" | date: "%A, %Y-%m-%d %H:%M", "Europe/Zurich"}} (Schweizer Zeit) - das ist dein Bezugspunkt für "heute". Löse relative Zeitangaben wie "morgen", "übermorgen", "nächste Woche", "am Montag" IMMER relativ zu diesem Zeitpunkt auf, niemals relativ zu einem anderen Datum. Format: "DD.MM.YYYY HH:mm" (z.B. "24.04.2026 13:00"). Verwende das korrekte Jahr - liegt das berechnete Datum vor dem Anruf-Zeitpunkt (z.B. Anruf im Dezember für einen Termin im Januar), nimm das nächste Jahr. Wenn der Agent im Gespräch ein konkretes Datum bestätigt hat, verwende dieses.`,
+- DATUM/UHRZEIT: Der Anruf fand statt am {{"now" | date: "%A, %Y-%m-%d %H:%M", "Europe/Zurich"}} (Schweizer Zeit) - das ist dein Bezugspunkt für "heute". Löse relative Zeitangaben wie "morgen", "übermorgen", "nächste Woche", "am Montag" IMMER relativ zu diesem Zeitpunkt auf, niemals relativ zu einem anderen Datum. Format: "DD.MM.YYYY HH:mm" (z.B. "24.04.2026 13:00"). Verwende das korrekte Jahr - liegt das berechnete Datum vor dem Anruf-Zeitpunkt (z.B. Anruf im Dezember für einen Termin im Januar), nimm das nächste Jahr. Wenn der Agent im Gespräch ein konkretes Datum/Uhrzeit bestätigt hat, verwende IMMER diese bestätigte Version, nicht eine frühere unsichere Angabe aus dem Transkript.
+- DEUTSCHE UHRZEIT-AUSDRÜCKE korrekt umrechnen (häufige Fehlerquelle!): "viertel nach eins" = 13:15, "halb zwei" = 13:30 (Achtung: NICHT 14:30 - "halb X" meint immer die Minute 30 VOR der vollen Stunde X), "viertel vor zwei" = 13:45, "zwanzig vor zwei" = 13:40, "zehn nach halb zwei" = 13:40, "kurz nach eins" ≈ 13:05, "kurz vor zwei" ≈ 13:55. Wenn im Transkript sowohl eine unsichere/vage als auch eine später im Gespräch präzisierte oder vom Anrufer bestätigte Uhrzeit vorkommen, gilt ausschliesslich die zuletzt bestätigte, exakte Uhrzeit.`,
           },
           {
             role: "user" as const,
