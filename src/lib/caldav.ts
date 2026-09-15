@@ -250,13 +250,13 @@ function generateICS(data: CalendarEventData): string {
 }
 
 export async function createCalendarEvent(data: CalendarEventData): Promise<void> {
-  const serverUrl = process.env.CALDAV_URL;
-  const calendarUrl = process.env.CALDAV_CALENDAR_URL;
-  const username = process.env.CALDAV_USERNAME;
-  const password = process.env.CALDAV_PASSWORD;
+  const serverUrl = process.env.TELEFONAGENT_CALDAV_URL;
+  const calendarUrl = process.env.TELEFONAGENT_CALDAV_CALENDAR_URL;
+  const username = process.env.TELEFONAGENT_CALDAV_USERNAME;
+  const password = process.env.TELEFONAGENT_CALDAV_PASSWORD;
 
   if (!serverUrl || !username || !password) {
-    throw new Error("CalDAV-Konfiguration fehlt (CALDAV_URL, CALDAV_USERNAME, CALDAV_PASSWORD).");
+    throw new Error("CalDAV-Konfiguration fehlt (TELEFONAGENT_CALDAV_URL, TELEFONAGENT_CALDAV_USERNAME, TELEFONAGENT_CALDAV_PASSWORD).");
   }
 
   console.log(`[CalDAV] Connecting to ${serverUrl} as ${username}`);
